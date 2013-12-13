@@ -10,8 +10,33 @@ import requests
 import json
 
 UNBABEL_API_URL="http://127.0.0.1:8000/tapi/v2/"
+
+## User with money
 UNBABEL_USERNAME="gracaninja"
 UNBABEL_APIKEY="5a6406e31f77ef779c4024b1579f0f6103944c5e"
+
+##User without money
+UNBABEL_USERNAME="gracaninja-1"
+UNBABEL_APIKEY="ea7974274e95d99e6f5d84ea92a8ccfcdeba0b4e"
+
+
+
+
+class UnauthorizedException(Exception):
+    
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+class BadRequestException(Exception):
+    
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+
 
 class UnbabelApi(object):
     
@@ -34,6 +59,10 @@ class UnbabelApi(object):
         result = requests.post("%stranslation/"%UNBABEL_API_URL,headers=headers,data=json.dumps(data))
         if result.status_code == 201:
             return json.loads(result.content)
+        elif result.status_code == 401:
+            raise UnauthorizedException(result.content)
+        elif result.status_code == 400:
+            raise BadRequestException(result.content)
         else:
             return result
 
