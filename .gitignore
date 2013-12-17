@@ -1,0 +1,8 @@
+.pypirc
+*~
+.project
+.pydevproject
+dist/
+my_info
+*.pyc
+unbabel_py.egg-info/

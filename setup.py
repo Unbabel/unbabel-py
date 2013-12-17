@@ -1,11 +1,10 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='unbabel-py',
-      version='0.1',
+      version='0.11',
       description='Python Wrapper around Unbabel HTTP API',
-      author='Joao Graça',
+      author='Joao Graca',
       author_email='gracaninja@unbabel.co',
-      url='https://github.com/Unbabel/unbabel-py',
       packages=[
           'unbabel',
           ],
@@ -15,4 +14,11 @@ setup(name='unbabel-py',
       install_requires=[
         'requests',
           ],
+      url = 'https://github.com/Unbabel/unbabel-py',
+      download_url = 'https://github.com/Unbabel/unbabel-py/tarball/0.1',
+      classifiers = ['Development Status :: 4 - Beta',
+                     'Intended Audience :: Developers',
+                     'Programming Language :: Python ',
+                     'Topic :: Text Processing'
+                     ]
       )
