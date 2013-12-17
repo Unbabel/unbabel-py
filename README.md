@@ -1,4 +1,3 @@
-
 Python SDK for the Unbabel REST API
 
 
@@ -21,6 +20,25 @@ Getting started:
 `from unbabel.api import UnbabelApi`
 
 `api = UnbabelApi(username=username,api_key=api_key,api_url="https://www.unbabel.co/tapi/v2/")`
+
+## Request a Translation
+
+`api.post_translations(text="This is a test translation",target_language="en",source_language="pt")`
+
+## Get a Translation
+
+Returns a translation by its uid.
+
+`t = api.get_translation(uid)` 
+
+
+
+## Get all Translations
+
+Returns all the translations for a given user.
+
+`api.get_translations()`
+
 
 
 ## Getting Available Language Pairs 
