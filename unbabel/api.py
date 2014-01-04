@@ -10,7 +10,6 @@ import requests
 import json
 
 
-
 class UnauthorizedException(Exception):
     
     def __init__(self, value):
@@ -84,7 +83,11 @@ class Translation(object):
 
 class UnbabelApi(object):
     
-    def __init__(self, username,api_key,api_url="https://www.unbabel.co/tapi/v2/"):
+    def __init__(self, username,api_key,sandbox=False):
+        if sandbox:
+            api_url= "http://staging.unbabel.co/tapi/v2/"
+        else:
+            api_url = "https://www.unbabel.co/tapi/v2/" 
         self.username = username
         self.api_key = api_key
         self.api_url = api_url
@@ -138,7 +141,8 @@ class UnbabelApi(object):
         result = requests.get("%stranslation/"%self.api_url,headers=headers)
         return json.loads(result.content)
     
-    
+
+
     def get_translation(self,uid):
         '''
             Returns a translation with the given id
