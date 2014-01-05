@@ -115,7 +115,12 @@ class UnbabelApi(object):
             data["visibility"] = visibility
         if public_url:
             data["public_url"] = public_url
+        print "Data for request"
+        print data
         result = requests.post("%stranslation/"%self.api_url,headers=headers,data=json.dumps(data))
+        print result
+        print result.content
+        print result.status_code
         if result.status_code == 201:
             json_object =  json.loads(result.content)
             translation = Translation(uid=json_object["uid"],
@@ -124,7 +129,6 @@ class UnbabelApi(object):
                                       source_language = json_object.get("source_langauge",None),
                                       translation = json_object.get("translation",None)
                                       )
-            return translation
             return translation
         elif result.status_code == 401:
             raise UnauthorizedException(result.content)
