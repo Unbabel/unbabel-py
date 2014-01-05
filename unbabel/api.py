@@ -9,6 +9,8 @@ Created on Dec 13, 2013
 import requests
 import json
 
+import logging
+logger = logging.getLogger('unbabel_py.' + __name__)
 
 class UnauthorizedException(Exception):
     
@@ -92,12 +94,15 @@ class UnbabelApi(object):
         self.api_key = api_key
         self.api_url = api_url
     
-    def post_translations(self,text,target_language,
+    def post_translations(self,
+                          text,
+                          target_language,
                           source_language=None,
-                          type=None,
+                          ttype=None,
                           tone=None,
                           visibility=None,
-                          public_url=None
+                          public_url=None,
+                          callback_url = None,
                           ):
         
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
@@ -108,19 +113,21 @@ class UnbabelApi(object):
         if source_language:
             data["source_language"] = source_language
         if type:
-            data["type"] = type
+            data["type"] = ttype
         if tone:
             data["tone"] = tone
         if visibility:
             data["visibility"] = visibility
         if public_url:
             data["public_url"] = public_url
-        print "Data for request"
-        print data
+        if callback_url:
+            data["callback_url"] = callback_url
+        logger.debug("Data for request")
+        logger.debug(data)
         result = requests.post("%stranslation/"%self.api_url,headers=headers,data=json.dumps(data))
-        print result
-        print result.content
-        print result.status_code
+        logger.debug(result)
+        logger.debug(result.content)
+        logger.debug(result.status_code)
         if result.status_code == 201:
             json_object =  json.loads(result.content)
             translation = Translation(uid=json_object["uid"],
