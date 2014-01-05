@@ -71,7 +71,7 @@ class Translation(object):
         self.text = text
         self.translation = translation
         self.source_language = source_language
-        self.target_languaeg = target_language
+        self.target_language = target_language
         self.status = status
     
     def __repr__(self):
