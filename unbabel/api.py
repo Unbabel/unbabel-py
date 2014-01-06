@@ -137,11 +137,16 @@ class UnbabelApi(object):
         if result.status_code == 201:
             json_object =  json.loads(result.content)
             logger.debug(json_object)
+            source_lang = json_object.get("source_language",None)
+            logger.debug(source_lang)
+            translation = json_object.get("translation",None)
+            status = json_object.get("status",None)
             translation = Translation(uid=json_object["uid"],
                                       text = json_object["text"],
                                       target_language = target_language,
-                                      source_language = json_object.get("source_langauge",None),
-                                      translation = json_object.get("translation",None)
+                                      source_language = source_lang,
+                                      translation = translation,
+                                      status=status
                                       )
             return translation
         elif result.status_code == 401:
