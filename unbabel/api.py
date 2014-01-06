@@ -69,6 +69,12 @@ class LangPair(object):
 class Translation(object):
     
     def __init__(self,uid=-1,text="",translation=None,target_language="",source_language=None,status=None):
+        logger.debug(uid)
+        logger.debug(text)
+        logger.debug(translation)
+        logger.debug(target_language)
+        logger.debug(source_language)
+        logger.debug(status)
         self.uid = uid
         self.text = text
         self.translation = translation
@@ -77,7 +83,7 @@ class Translation(object):
         self.status = status
     
     def __repr__(self):
-        return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.target_language)
+        return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.source_language)
     
     def __str__(self):
         return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.target_language)
@@ -130,6 +136,7 @@ class UnbabelApi(object):
         logger.debug(result.status_code)
         if result.status_code == 201:
             json_object =  json.loads(result.content)
+            logger.debug(json_object)
             translation = Translation(uid=json_object["uid"],
                                       text = json_object["text"],
                                       target_language = target_language,
