@@ -65,22 +65,29 @@ class LangPair(object):
     def __str__(self):
         return "%s_%s"%(self.source_language.shortname, self.target_language.shortname)
 
+class Translator(object):
+    
+    def __init__(self,first_name="",last_name="",picture_url="",profile_url=""):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.picture_url = picture_url
+        self.profile_url = profile_url
+    
+    @classmethod
+    def from_json(cls,json):
+        t = Translator(json["first_name"],json["last_name"],json["picture_url"],json["profile_url"])
+        return t
 
 class Translation(object):
     
-    def __init__(self,uid=-1,text="",translation=None,target_language="",source_language=None,status=None):
-        logger.debug(uid)
-        logger.debug(text)
-        logger.debug(translation)
-        logger.debug(target_language)
-        logger.debug(source_language)
-        logger.debug(status)
+    def __init__(self,uid=-1,text="",translation=None,target_language="",source_language=None,status=None,translators=[]):
         self.uid = uid
         self.text = text
         self.translation = translation
         self.source_language = source_language
         self.target_language = target_language
         self.status = status
+        self.translators = translators
     
     def __repr__(self):
         return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.source_language)
@@ -128,25 +135,23 @@ class UnbabelApi(object):
             data["public_url"] = public_url
         if callback_url:
             data["callback_url"] = callback_url
-        logger.debug("Data for request")
-        logger.debug(data)
         result = requests.post("%stranslation/"%self.api_url,headers=headers,data=json.dumps(data))
-        logger.debug(result)
-        logger.debug(result.content)
-        logger.debug(result.status_code)
         if result.status_code == 201:
             json_object =  json.loads(result.content)
-            logger.debug(json_object)
             source_lang = json_object.get("source_language",None)
-            logger.debug(source_lang)
             translation = json_object.get("translation",None)
             status = json_object.get("status",None)
+            
+            translators = [Translator.from_json(t) for t in json_object.get("translators",[])]
+            
+            
             translation = Translation(uid=json_object["uid"],
                                       text = json_object["text"],
                                       target_language = target_language,
                                       source_language = source_lang,
                                       translation = translation,
-                                      status=status
+                                      status=status,
+                                      translators=translators
                                       )
             return translation
         elif result.status_code == 401:
