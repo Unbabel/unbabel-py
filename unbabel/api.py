@@ -53,6 +53,18 @@ class Tone(object):
         return self.name
 
 
+class Topic(object):
+    
+    def __init__(self,name):
+        self.name = name
+        
+    def __repr__(self):
+        return self.name
+    
+    def __str__(self):
+        return self.name
+
+
 class LangPair(object):
     
     def __init__(self,source_language,target_language):
@@ -80,7 +92,15 @@ class Translator(object):
 
 class Translation(object):
     
-    def __init__(self,uid=-1,text="",translation=None,target_language="",source_language=None,status=None,translators=[]):
+    def __init__(self,
+                 uid=-1,
+                 text="",
+                 translation=None,
+                 target_language="",
+                 source_language=None,
+                 status=None,
+                 translators=[],
+                 topics=None):
         self.uid = uid
         self.text = text
         self.translation = translation
@@ -88,6 +108,7 @@ class Translation(object):
         self.target_language = target_language
         self.status = status
         self.translators = translators
+        self.topics = topics
     
     def __repr__(self):
         return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.source_language)
@@ -116,6 +137,7 @@ class UnbabelApi(object):
                           visibility=None,
                           public_url=None,
                           callback_url = None,
+                          topics = None,
                           ):
         
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
@@ -135,6 +157,8 @@ class UnbabelApi(object):
             data["public_url"] = public_url
         if callback_url:
             data["callback_url"] = callback_url
+        if topics:
+            data["topics"] = topics
         result = requests.post("%stranslation/"%self.api_url,headers=headers,data=json.dumps(data))
         if result.status_code == 201:
             json_object =  json.loads(result.content)
@@ -151,7 +175,8 @@ class UnbabelApi(object):
                                       source_language = source_lang,
                                       translation = translation,
                                       status=status,
-                                      translators=translators
+                                      translators=translators,
+                                      topics = topics
                                       )
             return translation
         elif result.status_code == 401:
@@ -205,3 +230,17 @@ class UnbabelApi(object):
                       description=tone_json["tone"]["description"]) 
                  for tone_json in tones_json["objects"]]
         return tones
+    
+    def get_topics(self):
+        '''
+            Returns the topics available on unbabel
+        '''
+        headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
+        result = requests.get("%stopic/"%self.api_url,headers=headers)
+        print result
+        print headers
+        topics_json =  json.loads(result.content)
+        print topics_json
+        topics = [Topic(name=tone_json["topic"]["name"]) 
+                 for tone_json in topics_json["objects"]]
+        return topics
