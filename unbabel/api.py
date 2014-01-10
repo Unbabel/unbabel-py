@@ -184,7 +184,9 @@ class UnbabelApi(object):
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
-            logger.exception("Unknown Error")
+            logger.error("Unknown Error")
+            logger.error("result.status_code")
+            logger.error("result.content")
             raise Exception("Unknown Error")
 
     def get_translations(self):
