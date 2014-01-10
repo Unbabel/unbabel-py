@@ -213,6 +213,7 @@ class UnbabelApi(object):
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
         result = requests.get("%slanguage_pair/"%self.api_url,headers=headers)
         try:
+            logger.debug(result.content)
             langs_json =  json.loads(result.content)
             languages = [LangPair(Language(shortname=lang_json["lang_pair"]["source_language"]["shortname"],
                                        name=lang_json["lang_pair"]["source_language"]["name"]),
