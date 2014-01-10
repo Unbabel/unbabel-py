@@ -212,12 +212,16 @@ class UnbabelApi(object):
         '''
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
         result = requests.get("%slanguage_pair/"%self.api_url,headers=headers)
-        langs_json =  json.loads(result.content)
-        languages = [LangPair(Language(shortname=lang_json["lang_pair"]["source_language"]["shortname"],
+        try:
+            langs_json =  json.loads(result.content)
+            languages = [LangPair(Language(shortname=lang_json["lang_pair"]["source_language"]["shortname"],
                                        name=lang_json["lang_pair"]["source_language"]["name"]),
                               Language(shortname=lang_json["lang_pair"]["target_language"]["shortname"],
                                        name=lang_json["lang_pair"]["target_language"]["name"])
                               ) for lang_json in langs_json["objects"]]
+        except:
+            logger.exception("Error decoding get language pairs")
+            languages = []
         return languages
     
     def get_tones(self):
