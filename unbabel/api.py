@@ -9,8 +9,7 @@ Created on Dec 13, 2013
 import requests
 import json
 
-import logging
-logger = logging.getLogger('unbabel_py.' + __name__)
+
 
 class UnauthorizedException(Exception):
     
@@ -121,7 +120,7 @@ class UnbabelApi(object):
     
     def __init__(self, username,api_key,sandbox=False):
         if sandbox:
-            api_url= "http://staging.unbabel.co/tapi/v2/"
+            api_url= "http://sandbox.unbabel.com/tapi/v2/"
         else:
             api_url = "https://www.unbabel.co/tapi/v2/" 
         self.username = username
@@ -147,7 +146,7 @@ class UnbabelApi(object):
                 }
         if source_language:
             data["source_language"] = source_language
-        if type:
+        if ttype:
             data["type"] = ttype
         if tone:
             data["tone"] = tone
@@ -184,9 +183,6 @@ class UnbabelApi(object):
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
-            logger.error("Unknown Error")
-            logger.error(result.status_code)
-            logger.error(result.content)
             raise Exception("Unknown Error")
 
     def get_translations(self):
@@ -245,10 +241,7 @@ class UnbabelApi(object):
         '''
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
         result = requests.get("%stopic/"%self.api_url,headers=headers)
-        print result
-        print headers
         topics_json =  json.loads(result.content)
-        print topics_json
         topics = [Topic(name=tone_json["topic"]["name"]) 
                  for tone_json in topics_json["objects"]]
         return topics
