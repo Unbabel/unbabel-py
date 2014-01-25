@@ -19,7 +19,7 @@ Getting started:
 
 `from unbabel.api import UnbabelApi`
 
-`api = UnbabelApi(username=username,api_key=api_key,api_url="https://www.unbabel.co/tapi/v2/")`
+`api = UnbabelApi(username=username,api_key=api_key,sandbox=True)`
 
 ## Request a Translation
 
