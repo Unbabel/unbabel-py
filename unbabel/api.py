@@ -110,7 +110,7 @@ class Translation(object):
         self.topics = topics
     
     def __repr__(self):
-        return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.source_language)
+        return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.target_language)
     
     def __str__(self):
         return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.target_language)
@@ -120,9 +120,9 @@ class UnbabelApi(object):
     
     def __init__(self, username,api_key,sandbox=False):
         if sandbox:
-            api_url= "http://sandbox.unbabel.com/tapi/v2/"
-        else:
             api_url = "https://www.unbabel.co/tapi/v2/" 
+        else:
+            api_url= "http://sandbox.unbabel.com/tapi/v2/"
         self.username = username
         self.api_key = api_key
         self.api_url = api_url
