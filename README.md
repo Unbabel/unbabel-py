@@ -23,7 +23,7 @@ Getting started:
 
 ## Request a Translation
 
-`api.post_translations(text="This is a test translation",target_language="en",source_language="pt")`
+`api.post_translations(text="This is a test translation",target_language="pt",source_language="en")`
 
 ## Get a Translation
 
