@@ -10,7 +10,7 @@ import requests
 import json
 
 import logging
-logger = logging.getLogger('unbabel-py.' + __name__)
+logger = logging.getLogger()
 
 class UnauthorizedException(Exception):
     
@@ -100,7 +100,9 @@ class Translation(object):
                  source_language=None,
                  status=None,
                  translators=[],
-                 topics=None):
+                 topics=None,
+                 price=None,
+                 **kwargs):
         self.uid = uid
         self.text = text
         self.translation = translation
@@ -109,6 +111,7 @@ class Translation(object):
         self.status = status
         self.translators = translators
         self.topics = topics
+        self.price = price
     
     def __repr__(self):
         return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.target_language)
@@ -192,7 +195,9 @@ class UnbabelApi(object):
         '''
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
         result = requests.get("%stranslation/"%self.api_url,headers=headers)
-        return json.loads(result.content)
+        translations_json =  json.loads(result.content)["objects"]
+        translations = [Translation(**tj) for tj in translations_json]
+        return translations
     
 
 
@@ -202,7 +207,8 @@ class UnbabelApi(object):
         '''
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
         result = requests.get("%stranslation/%s/"%(self.api_url,uid),headers=headers)
-        return json.loads(result.content)
+        translation = Translation(**json.loads(result.content))
+        return translation
     
 
     def get_language_pairs(self):

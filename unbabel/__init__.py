@@ -1,6 +1,5 @@
 
-
-LOGGING = {
+LOG_CONFIG = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
@@ -21,14 +20,13 @@ LOGGING = {
             'formatter': 'simple'
         },
     },
-    'loggers': {
-        'unbabel-py': {
+    'root': {
             'handlers': ['console'],
             'level':'DEBUG'
-        },
-    }
+    },
 }
 
 import logging
-logging.basicConfig()
-logger = logging.getLogger('unbabel-py.' + __name__)
+from logging.config import dictConfig
+dictConfig(LOG_CONFIG)
+logger = logging.getLogger()
