@@ -9,7 +9,8 @@ Created on Dec 13, 2013
 import requests
 import json
 
-
+import logging
+logger = logging.getLogger('unbabel-py.' + __name__)
 
 class UnauthorizedException(Exception):
     
