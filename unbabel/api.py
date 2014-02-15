@@ -211,12 +211,15 @@ class UnbabelApi(object):
         return translation
     
 
-    def get_language_pairs(self):
+    def get_language_pairs(self,train_langs=None):
         '''
             Returns the language pairs available on unbabel
         '''
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
-        result = requests.get("%slanguage_pair/"%self.api_url,headers=headers)
+        if train_langs is None:
+            result = requests.get("%slanguage_pair/"%self.api_url,headers=headers)
+        else:
+            result = requests.get("%slanguage_pair/?train_langs=%s"%(self.api_url,train_langs),headers=headers)
         try:
             logger.debug(result.content)
             langs_json =  json.loads(result.content)
