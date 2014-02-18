@@ -141,6 +141,7 @@ class UnbabelApi(object):
                           public_url=None,
                           callback_url = None,
                           topics = None,
+                          instructions=None,
                           ):
         
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
@@ -162,6 +163,8 @@ class UnbabelApi(object):
             data["callback_url"] = callback_url
         if topics:
             data["topics"] = topics
+        if instructions:
+            data["instructions"] = instructions
         result = requests.post("%stranslation/"%self.api_url,headers=headers,data=json.dumps(data))
         if result.status_code == 201:
             json_object =  json.loads(result.content)
