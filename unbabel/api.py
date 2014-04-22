@@ -95,7 +95,7 @@ class Translation(object):
     def __init__(self,
                  uid=-1,
                  text="",
-                 translation=None,
+                 translatedText=None,
                  target_language="",
                  source_language=None,
                  status=None,
@@ -105,7 +105,7 @@ class Translation(object):
                  **kwargs):
         self.uid = uid
         self.text = text
-        self.translation = translation
+        self.translation = translatedText
         self.source_language = source_language
         self.target_language = target_language
         self.status = status
@@ -142,6 +142,7 @@ class UnbabelApi(object):
                           callback_url = None,
                           topics = None,
                           instructions=None,
+                          uid=None,
                           ):
         
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
@@ -165,6 +166,8 @@ class UnbabelApi(object):
             data["topics"] = topics
         if instructions:
             data["instructions"] = instructions
+        if uid:
+            data["uid"] = uid
         result = requests.post("%stranslation/"%self.api_url,headers=headers,data=json.dumps(data))
         if result.status_code == 201:
             json_object =  json.loads(result.content)
