@@ -56,7 +56,7 @@ Returns all the translations for a given user.
 
 ## Getting Available Tones
 
-`api.get_language_pairs()`
+`api.get_tones()`
 
 > [Informal, Friendly, Business, Formal]
 
