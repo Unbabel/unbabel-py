@@ -6,3 +6,4 @@ dist/
 my_info
 *.pyc
 unbabel_py.egg-info/
+.idea
