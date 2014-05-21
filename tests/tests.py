@@ -61,3 +61,25 @@ class TestUnbabelAPI(unittest.TestCase):
             reduce(lambda x, y: x and y,
                    [isinstance(t, Topic) for t in topics]),
             'The topics are not all instance of Topic')
+
+    def test_post_translation(self):
+        data = {
+            'text': "This is a test translation",
+            'source_language': 'en',
+            'target_language': 'pt',
+        }
+        translation = self.api.post_translations(**data)
+        self.assertIsInstance(translation, Translation,
+                         'Should get a Translation instance')
+        self.assertIsNotNone(translation.uid, 'Did not get a uid')
+        self.assertGreater(translation.price, 0, 'Price is not greater than 0')
+        self.assertEqual(translation.source_language, 'en',
+                         'Source language is not en')
+        self.assertEqual(translation.target_language, 'pt',
+                         'Target language is not pt')
+        self.assertEqual(translation.text, data['text'])
+        self.assertEqual(translation.status, 'new', 'status is not new')
+        self.assertIsNone(translation.topics, 'Topics is not None')
+        self.assertIsInstance(translation.translators, list,
+                              'Translators is not a list')
+        self.assertIsNone(translation.translation, 'Got a translation')

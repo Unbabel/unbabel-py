@@ -181,10 +181,12 @@ class UnbabelApi(object):
         result = requests.post("%stranslation/" % self.api_url,
                                headers=headers, data=json.dumps(data))
         if result.status_code == 201:
+            logger.debug(result.content)
             json_object = json.loads(result.content)
             source_lang = json_object.get("source_language", None)
             translation = json_object.get("translation", None)
             status = json_object.get("status", None)
+            topics = json_object.get('topics', None)
 
             translators = [Translator.from_json(t) for t in
                            json_object.get("translators", [])]
@@ -196,7 +198,8 @@ class UnbabelApi(object):
                                       translation=translation,
                                       status=status,
                                       translators=translators,
-                                      topics=topics
+                                      topics=topics,
+                                      price=json_object['price'],
             )
             return translation
         elif result.status_code == 401:
