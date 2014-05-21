@@ -129,6 +129,18 @@ class Translation(object):
             self.uid, self.status, self.source_language, self.target_language)
 
 
+class Account(object):
+    def __init__(self, username, email, balance):
+        self.username = username
+        self.email = email
+        self.balance = balance
+
+    def __unicode__(self):
+        return u'email: {email}, balance: {balance}'.format(
+            email=self.email, balance=self.balance,
+        )
+
+
 class UnbabelApi(object):
     def __init__(self, username, api_key, sandbox=False):
         if sandbox:
@@ -291,6 +303,18 @@ class UnbabelApi(object):
         topics = [Topic(name=topic_json["topic"]["name"])
                   for topic_json in topics_json["objects"]]
         return topics
+
+    def get_account(self):
+        headers = {
+            'Authorization': 'ApiKey {}:{}'.format(self.username,
+                                                   self.api_key),
+            'content-type': 'application/json'}
+        result = requests.get("{}account/".format(self.api_url),
+                              headers=headers)
+        account_json = json.loads(result.content)
+        account_data = account_json['objects'][0]['account']
+        account = Account(**account_data)
+        return account
 
 
 __all__ = ['UnbabelApi']

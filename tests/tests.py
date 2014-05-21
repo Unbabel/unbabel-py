@@ -3,10 +3,11 @@ Created on Jan 3, 2014
 
 @author: joaograca
 '''
+import decimal
 import os
 import unittest
 
-from unbabel.api import UnbabelApi, LangPair, Tone, Topic, Translation
+from unbabel.api import UnbabelApi, LangPair, Tone, Topic, Translation, Account
 
 
 UNBABEL_TEST_USERNAME = os.environ.get('UNBABEL_TEST_USERNAME')
@@ -83,3 +84,14 @@ class TestUnbabelAPI(unittest.TestCase):
         self.assertIsInstance(translation.translators, list,
                               'Translators is not a list')
         self.assertIsNone(translation.translation, 'Got a translation')
+
+    def test_get_account(self):
+        account = self.api.get_account()
+        self.assertIsInstance(account, Account,
+                              'Should be an Account instance')
+        self.assertIsInstance(account.username, unicode,
+                              'Username is not unicode')
+        self.assertEqual(account.username, UNBABEL_TEST_USERNAME,
+                         'Wrong username')
+        self.assertIsInstance(account.balance, float, 'Balance is not float')
+        self.assertIsInstance(account.email, unicode, 'Email is not unicode')
