@@ -69,6 +69,7 @@ class TestUnbabelAPI(unittest.TestCase):
             'source_language': 'en',
             'target_language': 'pt',
         }
+        account = self.api.get_account()
         translation = self.api.post_translations(**data)
         self.assertIsInstance(translation, Translation,
                          'Should get a Translation instance')
@@ -84,6 +85,10 @@ class TestUnbabelAPI(unittest.TestCase):
         self.assertIsInstance(translation.translators, list,
                               'Translators is not a list')
         self.assertIsNone(translation.translation, 'Got a translation')
+
+        account2 = self.api.get_account()
+        self.assertEqual(account.balance, account2.balance + translation.price,
+                         "Balance inconsistency after post translation")
 
     def test_get_account(self):
         account = self.api.get_account()
