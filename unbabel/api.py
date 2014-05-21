@@ -11,6 +11,7 @@ import requests
 
 logger = logging.getLogger()
 
+
 UNBABEL_SANDBOX_API_URL = os.environ.get('UNBABEL_SANDOX_API_URL',
                                          "http://sandbox.unbabel.com/tapi/v2/")
 UNBABEL_API_URL = os.environ.get('UNBABEL_API_URL',
@@ -75,11 +76,11 @@ class LangPair(object):
 
     def __repr__(self):
         return "%s_%s" % (
-        self.source_language.shortname, self.target_language.shortname)
+            self.source_language.shortname, self.target_language.shortname)
 
     def __str__(self):
         return "%s_%s" % (
-        self.source_language.shortname, self.target_language.shortname)
+            self.source_language.shortname, self.target_language.shortname)
 
 
 class Translator(object):
@@ -121,11 +122,11 @@ class Translation(object):
 
     def __repr__(self):
         return "%s %s %s_%s" % (
-        self.uid, self.status, self.source_language, self.target_language)
+            self.uid, self.status, self.source_language, self.target_language)
 
     def __str__(self):
         return "%s %s %s_%s" % (
-        self.uid, self.status, self.source_language, self.target_language)
+            self.uid, self.status, self.source_language, self.target_language)
 
 
 class UnbabelApi(object):
@@ -153,8 +154,8 @@ class UnbabelApi(object):
     ):
 
         headers = {
-        'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-        'content-type': 'application/json'}
+            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
+            'content-type': 'application/json'}
         data = {
             "text": text,
             "target_language": target_language
@@ -210,8 +211,8 @@ class UnbabelApi(object):
             Returns the translations requested by the user
         '''
         headers = {
-        'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-        'content-type': 'application/json'}
+            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
+            'content-type': 'application/json'}
         result = requests.get("%stranslation/" % self.api_url, headers=headers)
         translations_json = json.loads(result.content)["objects"]
         translations = [Translation(**tj) for tj in translations_json]
@@ -223,8 +224,8 @@ class UnbabelApi(object):
             Returns a translation with the given id
         '''
         headers = {
-        'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-        'content-type': 'application/json'}
+            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
+            'content-type': 'application/json'}
         result = requests.get("%stranslation/%s/" % (self.api_url, uid),
                               headers=headers)
         translation = Translation(**json.loads(result.content))
@@ -236,14 +237,14 @@ class UnbabelApi(object):
             Returns the language pairs available on unbabel
         '''
         headers = {
-        'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-        'content-type': 'application/json'}
+            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
+            'content-type': 'application/json'}
         if train_langs is None:
             result = requests.get("%slanguage_pair/" % self.api_url,
                                   headers=headers)
         else:
             result = requests.get("%slanguage_pair/?train_langs=%s" % (
-            self.api_url, train_langs), headers=headers)
+                self.api_url, train_langs), headers=headers)
         try:
             logger.debug(result.content)
             langs_json = json.loads(result.content)
@@ -266,8 +267,8 @@ class UnbabelApi(object):
             Returns the tones available on unbabel
         '''
         headers = {
-        'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-        'content-type': 'application/json'}
+            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
+            'content-type': 'application/json'}
         result = requests.get("%stone/" % self.api_url, headers=headers)
         tones_json = json.loads(result.content)
         tones = [Tone(name=tone_json["tone"]["name"],
@@ -280,12 +281,12 @@ class UnbabelApi(object):
             Returns the topics available on unbabel
         '''
         headers = {
-        'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-        'content-type': 'application/json'}
+            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
+            'content-type': 'application/json'}
         result = requests.get("%stopic/" % self.api_url, headers=headers)
         topics_json = json.loads(result.content)
-        topics = [Topic(name=tone_json["topic"]["name"])
-                  for tone_json in topics_json["objects"]]
+        topics = [Topic(name=topic_json["topic"]["name"])
+                  for topic_json in topics_json["objects"]]
         return topics
 
 
