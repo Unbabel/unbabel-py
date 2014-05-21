@@ -112,7 +112,8 @@ class TestUnbabelAPI(unittest.TestCase):
             }
             self.api.post_translations(**data)
             translations = self.api.get_translations()
-            self.assertIsInstance(translations, list, 'Translations is not list')
+            self.assertIsInstance(translations, list,
+                                  'Translations is not list')
 
        self.assertTrue(
            reduce(lambda x, y: x and y,
