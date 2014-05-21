@@ -100,3 +100,21 @@ class TestUnbabelAPI(unittest.TestCase):
                          'Wrong username')
         self.assertIsInstance(account.balance, float, 'Balance is not float')
         self.assertIsInstance(account.email, unicode, 'Email is not unicode')
+
+    def test_get_translations(self):
+       translations = self.api.get_translations()
+       self.assertIsInstance(translations, list, 'Translations is not list')
+       if not len(translations):
+            data = {
+                'text': "This is a test translation",
+                'source_language': 'en',
+                'target_language': 'pt',
+            }
+            self.api.post_translations(**data)
+            translations = self.api.get_translations()
+            self.assertIsInstance(translations, list, 'Translations is not list')
+
+       self.assertTrue(
+           reduce(lambda x, y: x and y,
+                  [isinstance(t, Translation) for t in translations]),
+           'Items are not all instance of Translation')
