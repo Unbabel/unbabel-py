@@ -141,6 +141,20 @@ class Account(object):
         )
 
 
+class Order(object):
+    def __init__(self, id, status, price):
+        self.id = id
+        self.status = status
+        self.price = price
+
+    def __unicode__(self):
+        return u'{id} - {status} - {price}'.format(
+            id=self.id,
+            status=self.status,
+            price=self.price,
+        )
+
+
 class UnbabelApi(object):
     def __init__(self, username, api_key, sandbox=False):
         if sandbox:
@@ -150,6 +164,16 @@ class UnbabelApi(object):
         self.username = username
         self.api_key = api_key
         self.api_url = api_url
+        self.headers = {
+            'Authorization': 'ApiKey {}:{}'.format(self.username,
+                                                   self.api_key),
+            'content-type': 'application/json'}
+
+    def api_call(self, uri, data=None):
+        url = "{}{}".format(self.api_url, uri)
+        if data is None:
+            return requests.get(url, headers=self.headers)
+        return requests.post(url, headers=self.headers, data=json.dumps(data))
 
     def post_translations(self,
                           text,
@@ -165,9 +189,6 @@ class UnbabelApi(object):
                           uid=None,
     ):
 
-        headers = {
-            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-            'content-type': 'application/json'}
         data = {
             "text": text,
             "target_language": target_language
@@ -190,8 +211,7 @@ class UnbabelApi(object):
             data["instructions"] = instructions
         if uid:
             data["uid"] = uid
-        result = requests.post("%stranslation/" % self.api_url,
-                               headers=headers, data=json.dumps(data))
+        result = self.api_call('translation/', data)
         if result.status_code == 201:
             logger.debug(result.content)
             json_object = json.loads(result.content)
@@ -225,10 +245,7 @@ class UnbabelApi(object):
         '''
             Returns the translations requested by the user
         '''
-        headers = {
-            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-            'content-type': 'application/json'}
-        result = requests.get("%stranslation/" % self.api_url, headers=headers)
+        result = self.api_call('translation/')
         translations_json = json.loads(result.content)["objects"]
         translations = [Translation(**tj) for tj in translations_json]
         return translations
@@ -238,11 +255,7 @@ class UnbabelApi(object):
         '''
             Returns a translation with the given id
         '''
-        headers = {
-            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-            'content-type': 'application/json'}
-        result = requests.get("%stranslation/%s/" % (self.api_url, uid),
-                              headers=headers)
+        result = self.api_call('translation/{}/'.format(uid))
         translation = Translation(**json.loads(result.content))
         return translation
 
@@ -251,15 +264,11 @@ class UnbabelApi(object):
         '''
             Returns the language pairs available on unbabel
         '''
-        headers = {
-            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-            'content-type': 'application/json'}
         if train_langs is None:
-            result = requests.get("%slanguage_pair/" % self.api_url,
-                                  headers=headers)
+            result = self.api_call('language_pair/')
         else:
-            result = requests.get("%slanguage_pair/?train_langs=%s" % (
-                self.api_url, train_langs), headers=headers)
+            result = self.api_call(
+                'language_pair/?train_langs={}'.format(train_langs))
         try:
             logger.debug(result.content)
             langs_json = json.loads(result.content)
@@ -281,10 +290,7 @@ class UnbabelApi(object):
         '''
             Returns the tones available on unbabel
         '''
-        headers = {
-            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-            'content-type': 'application/json'}
-        result = requests.get("%stone/" % self.api_url, headers=headers)
+        result = self.api_call('tone/')
         tones_json = json.loads(result.content)
         tones = [Tone(name=tone_json["tone"]["name"],
                       description=tone_json["tone"]["description"])
@@ -295,26 +301,36 @@ class UnbabelApi(object):
         '''
             Returns the topics available on unbabel
         '''
-        headers = {
-            'Authorization': 'ApiKey %s:%s' % (self.username, self.api_key),
-            'content-type': 'application/json'}
-        result = requests.get("%stopic/" % self.api_url, headers=headers)
+        result = self.api_call('topic/')
         topics_json = json.loads(result.content)
         topics = [Topic(name=topic_json["topic"]["name"])
                   for topic_json in topics_json["objects"]]
         return topics
 
     def get_account(self):
-        headers = {
-            'Authorization': 'ApiKey {}:{}'.format(self.username,
-                                                   self.api_key),
-            'content-type': 'application/json'}
-        result = requests.get("{}account/".format(self.api_url),
-                              headers=headers)
+        result = self.api_call('account/')
         account_json = json.loads(result.content)
         account_data = account_json['objects'][0]['account']
         account = Account(**account_data)
         return account
+
+    def post_order(self):
+        data = {} # no input data, it's just a clean post
+        result = self.api_call('order/', data)
+        if result.status_code == 201:
+            logger.debug(result.content)
+            json_object = json.loads(result.content)
+            id = json_object.get('id')
+            status = json_object.get('status')
+            price = json_object.get('price')
+            order = Order(id, status, price)
+            return order
+        elif result.status_code == 401:
+            raise UnauthorizedException(result.content)
+        elif result.status_code == 400:
+            raise BadRequestException(result.content)
+        else:
+            raise Exception("Unknown Error")
 
 
 __all__ = ['UnbabelApi']

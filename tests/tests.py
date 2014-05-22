@@ -7,7 +7,8 @@ import decimal
 import os
 import unittest
 
-from unbabel.api import UnbabelApi, LangPair, Tone, Topic, Translation, Account
+from unbabel.api import (UnbabelApi, Order, LangPair, Tone, Topic,
+                         Translation, Account)
 
 
 UNBABEL_TEST_USERNAME = os.environ.get('UNBABEL_TEST_USERNAME')
@@ -102,9 +103,9 @@ class TestUnbabelAPI(unittest.TestCase):
         self.assertIsInstance(account.email, unicode, 'Email is not unicode')
 
     def test_get_translations(self):
-       translations = self.api.get_translations()
-       self.assertIsInstance(translations, list, 'Translations is not list')
-       if not len(translations):
+        translations = self.api.get_translations()
+        self.assertIsInstance(translations, list, 'Translations is not list')
+        if not len(translations):
             data = {
                 'text': "This is a test translation",
                 'source_language': 'en',
@@ -114,8 +115,14 @@ class TestUnbabelAPI(unittest.TestCase):
             translations = self.api.get_translations()
             self.assertIsInstance(translations, list,
                                   'Translations is not list')
+        self.assertTrue(
+            reduce(lambda x, y: x and y,
+                   [isinstance(t, Translation) for t in translations]),
+            'Items are not all instance of Translation')
 
-       self.assertTrue(
-           reduce(lambda x, y: x and y,
-                  [isinstance(t, Translation) for t in translations]),
-           'Items are not all instance of Translation')
+    def test_post_order(self):
+        order = self.api.post_order()
+        self.assertIsInstance(order, Order, 'Result is not an Order')
+        self.assertIsNotNone(order.id, 'ID is None')
+        self.assertEqual(order.status, 'new', 'Order status is not new')
+        self.assertEqual(order.price, 0, 'Price is not 0')
