@@ -150,3 +150,13 @@ class TestUnbabelAPI(unittest.TestCase):
 
     def test_fail_mandatory_fields(self):
         self.assertRaises(BadRequestException, self.api.post_job, 0, '', '', '')
+
+    def test_unauthorized_call(self):
+        api = self.api
+        self._api = UnbabelApi(username='fake_username',
+                               api_key='fake_api_key')
+
+        pairs = self.api.get_language_pairs()
+        self.assertIsInstance(pairs, list, 'Got something that is not a list')
+
+        self._api = api

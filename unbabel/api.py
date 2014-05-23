@@ -278,8 +278,9 @@ class UnbabelApi(object):
             result = self.api_call(
                 'language_pair/?train_langs={}'.format(train_langs))
         try:
-            logger.debug(result.content)
             langs_json = json.loads(result.content)
+            if 'error' in langs_json:
+                return []
             languages = [LangPair(Language(
                 shortname=lang_json["lang_pair"]["source_language"][
                     "shortname"],
