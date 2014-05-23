@@ -8,7 +8,7 @@ import os
 import unittest
 
 from unbabel.api import (UnbabelApi, Order, LangPair, Tone, Topic,
-                         Translation, Account)
+                         Translation, Account, Job)
 
 
 UNBABEL_TEST_USERNAME = os.environ.get('UNBABEL_TEST_USERNAME')
@@ -126,3 +126,24 @@ class TestUnbabelAPI(unittest.TestCase):
         self.assertIsNotNone(order.id, 'ID is None')
         self.assertEqual(order.status, 'new', 'Order status is not new')
         self.assertEqual(order.price, 0, 'Price is not 0')
+
+
+    def test_add_job_to_order(self):
+        order = self.api.post_order()
+
+        data = {
+            'order_id': order.id,
+            'text': "This is a test translation",
+            'source_language': 'en',
+            'target_language': 'pt',
+        }
+
+        job = self.api.post_job(**data)
+        self.assertIsInstance(job, Job)
+        self.assertEqual(job.order_id, order.id, 'Order ID is not equal')
+        self.assertEqual(job.status, 'built', 'Job status is not built')
+        self.assertEqual(job.text, data['text'], 'Job text is not correct')
+        self.assertEqual(job.source_language, data['source_language'],
+                         'Job source_language is not correct')
+        self.assertEqual(job.target_language, data['target_language'],
+                         'Job target_language is not correct')

@@ -141,6 +141,24 @@ class Account(object):
         )
 
 
+class Job(object):
+    def __init__(self, uid, order_id, status, source_language, target_language,
+                 text, price, priority, creation_date):
+        self.uid = uid
+        self.order_id = order_id
+        self.status = status
+        self.text = text
+        self.price = price
+        self.source_language = source_language
+        self.target_language = target_language
+        self.creation_date = creation_date
+        self.priority = priority
+
+    def __unicode__(self):
+        return u'order_id: {}, uid: {}, status: {}'.format(
+            self.order_id, self.uid, self.status)
+
+
 class Order(object):
     def __init__(self, id, status, price):
         self.id = id
@@ -175,20 +193,10 @@ class UnbabelApi(object):
             return requests.get(url, headers=self.headers)
         return requests.post(url, headers=self.headers, data=json.dumps(data))
 
-    def post_translations(self,
-                          text,
-                          target_language,
-                          source_language=None,
-                          ttype=None,
-                          tone=None,
-                          visibility=None,
-                          public_url=None,
-                          callback_url=None,
-                          topics=None,
-                          instructions=None,
-                          uid=None,
-    ):
-
+    def post_translations(self, text, target_language, source_language=None,
+                          ttype=None, tone=None, visibility=None,
+                          public_url=None, callback_url=None, topics=None,
+                          instructions=None, uid=None):
         data = {
             "text": text,
             "target_language": target_language
@@ -318,13 +326,41 @@ class UnbabelApi(object):
         data = {} # no input data, it's just a clean post
         result = self.api_call('order/', data)
         if result.status_code == 201:
-            logger.debug(result.content)
             json_object = json.loads(result.content)
             id = json_object.get('id')
             status = json_object.get('status')
             price = json_object.get('price')
             order = Order(id, status, price)
             return order
+        elif result.status_code == 401:
+            raise UnauthorizedException(result.content)
+        elif result.status_code == 400:
+            raise BadRequestException(result.content)
+        else:
+            raise Exception("Unknown Error")
+
+    def post_job(self, order_id, text, source_language, target_language):
+        data = {
+            'order_id': order_id,
+            'text': text,
+            'source_language': source_language,
+            'target_language': target_language,
+        }
+        result = self.api_call('job/', data)
+        if result.status_code == 201:
+            json_object = json.loads(result.content)
+            job = Job(
+                uid=json_object['uid'],
+                order_id=json_object['order_id'],
+                status=json_object['status'],
+                text=json_object['text'],
+                price=json_object['price'],
+                source_language=json_object['source_language'],
+                target_language=json_object['target_language'],
+                creation_date=json_object['creation_date'],
+                priority=json_object['priority'],
+            )
+            return job
         elif result.status_code == 401:
             raise UnauthorizedException(result.content)
         elif result.status_code == 400:
