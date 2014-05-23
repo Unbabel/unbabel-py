@@ -8,7 +8,7 @@ import os
 import unittest
 
 from unbabel.api import (UnbabelApi, Order, LangPair, Tone, Topic,
-                         Translation, Account, Job)
+                         Translation, Account, Job, BadRequestException)
 
 
 UNBABEL_TEST_USERNAME = os.environ.get('UNBABEL_TEST_USERNAME')
@@ -147,3 +147,6 @@ class TestUnbabelAPI(unittest.TestCase):
                          'Job source_language is not correct')
         self.assertEqual(job.target_language, data['target_language'],
                          'Job target_language is not correct')
+
+    def test_fail_mandatory_fields(self):
+        self.assertRaises(BadRequestException, self.api.post_job, 0, '', '', '')
