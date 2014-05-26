@@ -342,8 +342,9 @@ class UnbabelApi(object):
 
     def post_job(self, order_id, text, source_language, target_language):
         data = {
-            'order_id': order_id,
+            'order': order_id,
             'text': text,
+            'text_format': 'text',
             'source_language': source_language,
             'target_language': target_language,
         }
@@ -352,7 +353,7 @@ class UnbabelApi(object):
             json_object = json.loads(result.content)
             job = Job(
                 uid=json_object['uid'],
-                order_id=json_object['order_id'],
+                order_id=json_object['order'],
                 status=json_object['status'],
                 text=json_object['text'],
                 price=json_object['price'],
@@ -367,6 +368,9 @@ class UnbabelApi(object):
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
+            logger.debug('oi:')
+            logger.debug(result.content)
+            logger.debug('coiso')
             raise Exception("Unknown Error")
 
 
