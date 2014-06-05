@@ -7,3 +7,4 @@ my_info
 *.pyc
 unbabel_py.egg-info/
 .idea
+.DS_Store

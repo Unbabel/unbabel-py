@@ -340,15 +340,18 @@ class UnbabelApi(object):
         else:
             raise Exception("Unknown Error")
 
-    def post_job(self, order_id, text, source_language, target_language):
+    def post_job(self, order_id, text, source_language, target_language, callback_url=None):
         data = {
             'order': order_id,
             'text': text,
             'text_format': 'text',
             'source_language': source_language,
             'target_language': target_language,
+            'callback_url': callback_url
         }
+
         result = self.api_call('job/', data)
+
         if result.status_code == 201:
             json_object = json.loads(result.content)
             job = Job(
@@ -360,7 +363,7 @@ class UnbabelApi(object):
                 source_language=json_object['source_language'],
                 target_language=json_object['target_language'],
                 creation_date=json_object['creation_date'],
-                priority=json_object['priority'],
+                priority=json_object['priority']
             )
             return job
         elif result.status_code == 401:
