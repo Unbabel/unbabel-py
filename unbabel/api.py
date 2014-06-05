@@ -340,7 +340,8 @@ class UnbabelApi(object):
         else:
             raise Exception("Unknown Error")
 
-    def post_job(self, order_id, text, text_format="text",  source_language, target_language, uid=None, callback_url=None):
+    def post_job(self, order_id, text, source_language, target_language,
+                 text_format="text", uid=None, callback_url=None):
         data = {
             'order': order_id,
             'text': text,
