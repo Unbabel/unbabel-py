@@ -9,7 +9,7 @@ import os
 import requests
 
 
-logger = logging.getLogger()
+log = logging.getLogger()
 
 
 UNBABEL_SANDBOX_API_URL = os.environ.get('UNBABEL_SANDOX_API_URL',
@@ -221,7 +221,7 @@ class UnbabelApi(object):
             data["uid"] = uid
         result = self.api_call('translation/', data)
         if result.status_code == 201:
-            logger.debug(result.content)
+            log.debug(result.content)
             json_object = json.loads(result.content)
             source_lang = json_object.get("source_language", None)
             translation = json_object.get("translation", None)
@@ -291,7 +291,7 @@ class UnbabelApi(object):
                                                "target_language"]["name"])
             ) for lang_json in langs_json["objects"]]
         except:
-            logger.exception("Error decoding get language pairs")
+            log.exception("Error decoding get language pairs")
             languages = []
         return languages
 
@@ -341,21 +341,31 @@ class UnbabelApi(object):
             raise Exception("Unknown Error")
 
     def post_job(self, order_id, text, source_language, target_language,
-                 text_format="text", uid=None, callback_url=None):
+                 target_text='', text_format="text", uid=None, tone=None,
+                 topic=[], visibility=None, instructions='', public_url=None,
+                 callback_url=None, job_type='paid'):
         data = {
             'order': order_id,
             'text': text,
+            'target_text': target_text,
             'text_format': text_format,
             'source_language': source_language,
             'target_language': target_language,
             'uid': uid,
-            'callback_url': callback_url
+            'tone': tone,
+            'topic': topic,
+            'visibility': visibility,
+            'instructions': instructions,
+            'public_url': public_url,
+            'callback_url': callback_url,
+            'type': job_type,
         }
 
         result = self.api_call('job/', data)
 
         if result.status_code == 201:
             json_object = json.loads(result.content)
+            log.debug(json_object)
             job = Job(
                 uid=json_object['uid'],
                 order_id=json_object['order'],
@@ -373,9 +383,8 @@ class UnbabelApi(object):
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
-            logger.debug('oi:')
-            logger.debug(result.content)
-            logger.debug('coiso')
+            log.debug('Got a HTTP Error [{}]'.format(result.status_code))
+            log.debug(result.content)
             raise Exception("Unknown Error")
 
 
