@@ -23,9 +23,11 @@ Getting started:
 
 ## Request a Translation
 
-`api.post_translations(text="This is a test translation",target_language="pt",
+```
+api.post_translations(text="This is a test translation",target_language="pt",
                        source_language="en", 
-                       callback_url="http://my-awesome-service.com/unbabel_endpoint")`
+                       callback_url="http://my-awesome-service.com/unbabel_endpoint")
+```
 
 Check out the [API documentation](https://github.com/Unbabel/unbabel_api#translation) for additional options.
 
