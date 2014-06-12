@@ -365,7 +365,7 @@ class UnbabelApi(object):
 
         if result.status_code == 201:
             json_object = json.loads(result.content)
-            log.debug(json_object)
+            #log.debug(json_object)
             job = Job(
                 uid=json_object['uid'],
                 order_id=json_object['order'],
@@ -384,7 +384,7 @@ class UnbabelApi(object):
             raise BadRequestException(result.content)
         else:
             log.debug('Got a HTTP Error [{}]'.format(result.status_code))
-            log.debug(result.content)
+            #log.debug(result.content)
             raise Exception("Unknown Error")
 
 

@@ -8,3 +8,4 @@ my_info
 unbabel_py.egg-info/
 .idea
 .DS_Store
+*.swp
