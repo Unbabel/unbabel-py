@@ -389,8 +389,9 @@ class UnbabelApi(object):
 
     def get_word_count(self, text):
         result = self.api_call('wordcount/', {"text": text})
-        print result
         log.debug(result)
+        json_object = json.loads(result.content)
+        log.debug(json_object)
 
         # if(result["error"]):
         #     log.debug(result.error)
