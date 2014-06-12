@@ -267,7 +267,6 @@ class UnbabelApi(object):
         translation = Translation(**json.loads(result.content))
         return translation
 
-
     def get_language_pairs(self, train_langs=None):
         '''
             Returns the language pairs available on unbabel
@@ -344,6 +343,7 @@ class UnbabelApi(object):
                  target_text='', text_format="text", uid=None, tone=None,
                  topic=[], visibility=None, instructions='', public_url=None,
                  callback_url=None, job_type='paid'):
+
         data = {
             'order': order_id,
             'text': text,
@@ -386,6 +386,15 @@ class UnbabelApi(object):
             log.debug('Got a HTTP Error [{}]'.format(result.status_code))
             #log.debug(result.content)
             raise Exception("Unknown Error")
+
+    def get_word_count(self, text):
+        result = self.api_call('wordcount/', {"text": text})
+
+        if(result.error):
+            log.debug(result.error)
+            raise Exception("Unknown Error")
+        else:
+            return result.word_count
 
 
 __all__ = ['UnbabelApi']
