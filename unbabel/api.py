@@ -391,11 +391,11 @@ class UnbabelApi(object):
         result = self.api_call('wordcount/', {"text": text})
         log.debug(result)
 
-        if(result["error"]):
-            log.debug(result.error)
-            raise Exception("Unknown Error")
-        else:
-            return result.word_count
+        # if(result["error"]):
+        #     log.debug(result.error)
+        #     raise Exception("Unknown Error")
+        # else:
+        return result.word_count
 
 
 __all__ = ['UnbabelApi']
