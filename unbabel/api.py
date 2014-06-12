@@ -394,7 +394,7 @@ class UnbabelApi(object):
             json_object = json.loads(result.content)
             return json_object["word_count"]
         else:
-            log.debug(result.error)
+            log.debug('Got a HTTP Error [{}]'.format(result.status_code))
             raise Exception("Unknown Error")
 
 
