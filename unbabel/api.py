@@ -130,7 +130,9 @@ class UnbabelApi(object):
         self.username = username
         self.api_key = api_key
         self.api_url = api_url
+        self.is_bulk = False
     
+
     def post_translations(self,
                           text,
                           target_language,
@@ -142,58 +144,80 @@ class UnbabelApi(object):
                           callback_url = None,
                           topics = None,
                           instructions=None,
-                          uid=None,
+                          uid=None
                           ):
         
+
+        #data = self.create_default_translation(text, target_language)
+        data = {}
+        for k, v in locals():
+            data[k] = v
+
+        if self.is_bulk:
+            self.bulk_data.append(data)
+            return
+
+        return self._make_request(data)
+
+    def _build_translation_object(self, json_object):
+        source_lang = json_object.get("source_language",None)
+        translation = json_object.get("translation",None)
+        status = json_object.get("status",None)
+            
+        translators = [Translator.from_json(t) for t in json_object.get("translators",[])]
+            
+        translation = Translation(
+            uid = json_object["uid"],
+            text = json_object["text"],
+            target_language = json_object.get('target_language', None),
+            source_language = json_object.get('source_lang', None),
+            translation = json_object.get('translation', None),
+            status = json_object.get('status', None),
+            translators = translators,
+            topics = json_object.get('topics', None)
+        )
+        return translation
+        
+
+    def _make_request(self, data):
+        
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
-        data = {
-                "text":text,
-                "target_language":target_language
-                }
-        if source_language:
-            data["source_language"] = source_language
-        if ttype:
-            data["type"] = ttype
-        if tone:
-            data["tone"] = tone
-        if visibility:
-            data["visibility"] = visibility
-        if public_url:
-            data["public_url"] = public_url
-        if callback_url:
-            data["callback_url"] = callback_url
-        if topics:
-            data["topics"] = topics
-        if instructions:
-            data["instructions"] = instructions
-        if uid:
-            data["uid"] = uid
-        result = requests.post("%stranslation/"%self.api_url,headers=headers,data=json.dumps(data))
+        result = requests.post("%stranslation/"% self.api_url, headers=headers, data=json.dumps(data))
         if result.status_code == 201:
             json_object =  json.loads(result.content)
-            source_lang = json_object.get("source_language",None)
-            translation = json_object.get("translation",None)
-            status = json_object.get("status",None)
-            
-            translators = [Translator.from_json(t) for t in json_object.get("translators",[])]
-            
-            
-            translation = Translation(uid=json_object["uid"],
-                                      text = json_object["text"],
-                                      target_language = target_language,
-                                      source_language = source_lang,
-                                      translation = translation,
-                                      status=status,
-                                      translators=translators,
-                                      topics = topics
-                                      )
-            return translation
+            toret = None
+            if self.is_bulk:
+                toret = []
+                for obj in json_object['objects']:
+                    toret.append(self._build_translation_object(obj))
+            else:
+                toret = self._build_translation_object(json_object)
+            return toret
         elif result.status_code == 401:
             raise UnauthorizedException(result.content)
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
             raise Exception("Unknown Error")
+
+    def start_bulk_transaction(self):
+        self.bulk_data = []
+        self.is_bulk = True
+
+    def _post_bulk(self):
+        return self._make_request(data=self.bulk_data)
+
+    def post_bulk_translations(self, translations):
+        self.start_bulk_transaction()
+        for obj in translations:
+            obj = copy.deepcopy(obj)
+            text, target_language = obj['text'], obj['target_language']
+            del obj['text']
+            del obj['target_language']
+
+            self.post_translations(text, target_language, **obj)
+
+        self._post_bulk()
 
     def get_translations(self):
         '''
