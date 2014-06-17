@@ -150,7 +150,8 @@ class UnbabelApi(object):
 
         #data = self.create_default_translation(text, target_language)
         data = {}
-        for k, v in locals():
+        for k, v in locals().iteritems():
+            if v is self or v is data: continue
             data[k] = v
 
         if self.is_bulk:
@@ -182,9 +183,10 @@ class UnbabelApi(object):
     def _make_request(self, data):
         
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
+        print(data)
         result = requests.post("%stranslation/"% self.api_url, headers=headers, data=json.dumps(data))
         if result.status_code == 201:
-            json_object =  json.loads(result.content)
+            json_object = json.loads(result.content)
             toret = None
             if self.is_bulk:
                 toret = []
@@ -198,14 +200,14 @@ class UnbabelApi(object):
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
-            raise Exception("Unknown Error")
+            raise Exception("Unknown Error return status %d: %s", result.status_code, result.content[0:100])
 
     def start_bulk_transaction(self):
         self.bulk_data = []
         self.is_bulk = True
 
     def _post_bulk(self):
-        return self._make_request(data=self.bulk_data)
+        return self._make_request(data=data)
 
     def post_bulk_translations(self, translations):
         self.start_bulk_transaction()
@@ -214,7 +216,6 @@ class UnbabelApi(object):
             text, target_language = obj['text'], obj['target_language']
             del obj['text']
             del obj['target_language']
-
             self.post_translations(text, target_language, **obj)
 
         self._post_bulk()
