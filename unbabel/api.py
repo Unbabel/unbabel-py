@@ -4,7 +4,7 @@ Created on Dec 13, 2013
 @author: joaograca
 '''
 
-
+import copy
 
 import requests
 import json
@@ -151,7 +151,8 @@ class UnbabelApi(object):
         #data = self.create_default_translation(text, target_language)
         data = {}
         for k, v in locals().iteritems():
-            if v is self or v is data: continue
+            if v is self or v is data or v is None: 
+                continue
             data[k] = v
 
         if self.is_bulk:
@@ -183,9 +184,12 @@ class UnbabelApi(object):
     def _make_request(self, data):
         
         headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
-        print(data)
-        result = requests.post("%stranslation/"% self.api_url, headers=headers, data=json.dumps(data))
-        if result.status_code == 201:
+        if self.is_bulk:
+            f = requests.patch
+        else:
+            f = requests.post
+        result = f("%stranslation/"% self.api_url, headers=headers, data=json.dumps(data))
+        if result.status_code in (201, 202):
             json_object = json.loads(result.content)
             toret = None
             if self.is_bulk:
@@ -207,6 +211,7 @@ class UnbabelApi(object):
         self.is_bulk = True
 
     def _post_bulk(self):
+        data = {'objects' : self.bulk_data}
         return self._make_request(data=data)
 
     def post_bulk_translations(self, translations):
@@ -218,7 +223,7 @@ class UnbabelApi(object):
             del obj['target_language']
             self.post_translations(text, target_language, **obj)
 
-        self._post_bulk()
+        return self._post_bulk()
 
     def get_translations(self):
         '''
