@@ -102,6 +102,7 @@ class Translation(object):
                  translators=[],
                  topics=None,
                  price=None,
+                 balance=None,
                  **kwargs):
         self.uid = uid
         self.text = text
@@ -112,12 +113,13 @@ class Translation(object):
         self.translators = translators
         self.topics = topics
         self.price = price
+        self.balance = balance
     
     def __repr__(self):
-        return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.target_language)
+        return "%s %s %s_%s_%s"%(self.uid,self.status,self.source_language, self.target_language, self.balance)
     
     def __str__(self):
-        return "%s %s %s_%s"%(self.uid,self.status,self.source_language, self.target_language)
+        return "%s %s %s_%s_%s"%(self.uid,self.status,self.source_language, self.target_language, self.balance)
 
 
 class UnbabelApi(object):
@@ -176,7 +178,9 @@ class UnbabelApi(object):
             translation = json_object.get('translation', None),
             status = json_object.get('status', None),
             translators = translators,
-            topics = json_object.get('topics', None)
+            topics = json_object.get('topics', None),
+            price = json_object.get('price', None),
+            balance = json_object.get('balance', None)
         )
         return translation
         
