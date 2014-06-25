@@ -99,34 +99,43 @@ class Translator(object):
 
 
 class Translation(object):
-    def __init__(self,
-                 uid=-1,
-                 text="",
-                 translatedText=None,
-                 target_language="",
-                 source_language=None,
-                 status=None,
-                 translators=[],
-                 topics=None,
-                 price=None,
-                 **kwargs):
+    def __init__(
+        self,
+        uid = -1,
+        text = "",
+        translation = None,
+        target_language = "",
+        source_language = None,
+        status = None,
+        translators = [],
+        topics = None,
+        price = None,
+        text_format = 'text',
+        origin = None,
+        price_plan = None,
+        client=None,
+    ):
         self.uid = uid
         self.text = text
-        self.translation = translatedText
+        self.translation = translation
         self.source_language = source_language
         self.target_language = target_language
         self.status = status
         self.translators = translators
         self.topics = topics
         self.price = price
+        self.text_format = text_format
+        self.origin = origin
+        self.price_plan = price_plan
+        self.client = client
 
-    def __repr__(self):
-        return "%s %s %s_%s" % (
-            self.uid, self.status, self.source_language, self.target_language)
+    #def __repr__(self):
+    #    return "%s %s %s_%s" % (
+    #        self.uid, self.status, self.source_language, self.target_language)
 
-    def __str__(self):
-        return "%s %s %s_%s" % (
-            self.uid, self.status, self.source_language, self.target_language)
+    #def __str__(self):
+    #    return "%s %s %s_%s" % (
+    #        self.uid, self.status, self.source_language, self.target_language)
 
 
 class Account(object):
@@ -189,6 +198,8 @@ class UnbabelApi(object):
 
     def api_call(self, uri, data=None):
         url = "{}{}".format(self.api_url, uri)
+        print "URL: {}".format(url)
+        print "HEADERS: {}".format(self.headers)
         if data is None:
             return requests.get(url, headers=self.headers)
         return requests.post(url, headers=self.headers, data=json.dumps(data))
@@ -196,13 +207,16 @@ class UnbabelApi(object):
     def post_translations(self, text, target_language, source_language=None,
                           ttype=None, tone=None, visibility=None,
                           public_url=None, callback_url=None, topics=None,
-                          instructions=None, uid=None):
+                          instructions=None, uid=None,
+                          text_format = 'text'):
         data = {
-            "text": text,
-            "target_language": target_language
+            'text': text,
+            'text_format': text_format,
+            'target_language': target_language,
         }
+
         if source_language:
-            data["source_language"] = source_language
+            data['source_language'] = source_language
         if ttype:
             data["type"] = ttype
         if tone:
@@ -219,27 +233,27 @@ class UnbabelApi(object):
             data["instructions"] = instructions
         if uid:
             data["uid"] = uid
+
         result = self.api_call('translation/', data)
         if result.status_code == 201:
             log.debug(result.content)
             json_object = json.loads(result.content)
-            source_lang = json_object.get("source_language", None)
             translation = json_object.get("translation", None)
-            status = json_object.get("status", None)
-            topics = json_object.get('topics', None)
 
             translators = [Translator.from_json(t) for t in
                            json_object.get("translators", [])]
 
-            translation = Translation(uid=json_object["uid"],
-                                      text=json_object["text"],
-                                      target_language=target_language,
-                                      source_language=source_lang,
-                                      translation=translation,
-                                      status=status,
-                                      translators=translators,
-                                      topics=topics,
-                                      price=json_object['price'],
+            translation = Translation(
+                uid = json_object["uid"],
+                text = json_object["text"],
+                text_format = json_object['text_format'],
+                target_language = json_object['target_language'],
+                source_language = json_object['source_language'],
+                translation = translation,
+                status = json_object['status'],
+                translators = translators,
+                topics = json_object.get('topics', None),
+                price = json_object['price'],
             )
             return translation
         elif result.status_code == 401:
@@ -254,8 +268,13 @@ class UnbabelApi(object):
             Returns the translations requested by the user
         '''
         result = self.api_call('translation/')
-        translations_json = json.loads(result.content)["objects"]
-        translations = [Translation(**tj) for tj in translations_json]
+        if result.status_code == 200:
+            translations_json = json.loads(result.content)["objects"]
+            translations = [Translation(**tj) for tj in translations_json]
+        else:
+            log.critical('Error status when requesting translation from server: {}!'.format(
+                         result.status_code))
+            translations = []
         return translations
 
 
