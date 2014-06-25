@@ -201,15 +201,11 @@ class UnbabelApi(object):
                                                    self.api_key),
             'content-type': 'application/json'}
 
-
-
-
     def api_call(self, uri, data=None):
         url = "{}{}".format(self.api_url, uri)
         if data is None:
             return requests.get(url, headers=self.headers)
         return requests.post(url, headers=self.headers, data=json.dumps(data))
-
 
     def post_translations(self,
                           text,
@@ -225,14 +221,8 @@ class UnbabelApi(object):
                           uid=None,
                           text_format="text"
                           ):
-
-
-        #data = self.create_default_translation(text, target_language)
-        data = {}
-        for k, v in locals().iteritems():
-            if v is self or v is data or v is None:
-                continue
-            data[k] = v
+        ## Collect args
+        data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
 
         if self.is_bulk:
             self.bulk_data.append(data)
