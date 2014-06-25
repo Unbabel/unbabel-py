@@ -1,3 +1,4 @@
+import unbabel.api
 
 LOG_CONFIG = {
     'version': 1,
