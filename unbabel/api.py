@@ -10,6 +10,7 @@ import requests
 
 
 log = logging.getLogger()
+import copy
 
 
 UNBABEL_SANDBOX_API_URL = os.environ.get('UNBABEL_SANDOX_API_URL',
@@ -113,8 +114,10 @@ class Translation(object):
         text_format = 'text',
         origin = None,
         price_plan = None,
+        balance = None,
         client=None,
-    ):
+
+        ):
         self.uid = uid
         self.text = text
         self.translation = translation
@@ -128,14 +131,15 @@ class Translation(object):
         self.origin = origin
         self.price_plan = price_plan
         self.client = client
+        self.balance = balance
 
-    #def __repr__(self):
-    #    return "%s %s %s_%s" % (
-    #        self.uid, self.status, self.source_language, self.target_language)
+    def __repr__(self):
+        return "%s %s %s_%s" % (
+            self.uid, self.status, self.source_language, self.target_language)
 
-    #def __str__(self):
-    #    return "%s %s %s_%s" % (
-    #        self.uid, self.status, self.source_language, self.target_language)
+    def __str__(self):
+        return "%s %s %s_%s" % (
+            self.uid, self.status, self.source_language, self.target_language)
 
 
 class Account(object):
@@ -191,77 +195,124 @@ class UnbabelApi(object):
         self.username = username
         self.api_key = api_key
         self.api_url = api_url
+        self.is_bulk = False
         self.headers = {
             'Authorization': 'ApiKey {}:{}'.format(self.username,
                                                    self.api_key),
             'content-type': 'application/json'}
 
+
+
+
     def api_call(self, uri, data=None):
         url = "{}{}".format(self.api_url, uri)
-        print "URL: {}".format(url)
-        print "HEADERS: {}".format(self.headers)
         if data is None:
             return requests.get(url, headers=self.headers)
         return requests.post(url, headers=self.headers, data=json.dumps(data))
 
-    def post_translations(self, text, target_language, source_language=None,
-                          ttype=None, tone=None, visibility=None,
-                          public_url=None, callback_url=None, topics=None,
-                          instructions=None, uid=None,
-                          text_format = 'text'):
-        data = {
-            'text': text,
-            'text_format': text_format,
-            'target_language': target_language,
-        }
 
-        if source_language:
-            data['source_language'] = source_language
-        if ttype:
-            data["type"] = ttype
-        if tone:
-            data["tone"] = tone
-        if visibility:
-            data["visibility"] = visibility
-        if public_url:
-            data["public_url"] = public_url
-        if callback_url:
-            data["callback_url"] = callback_url
-        if topics:
-            data["topics"] = topics
-        if instructions:
-            data["instructions"] = instructions
-        if uid:
-            data["uid"] = uid
+    def post_translations(self,
+                          text,
+                          target_language,
+                          source_language=None,
+                          ttype=None,
+                          tone=None,
+                          visibility=None,
+                          public_url=None,
+                          callback_url = None,
+                          topics = None,
+                          instructions=None,
+                          uid=None,
+                          text_format="text"
+                          ):
 
-        result = self.api_call('translation/', data)
-        if result.status_code == 201:
-            log.debug(result.content)
+
+        #data = self.create_default_translation(text, target_language)
+        data = {}
+        for k, v in locals().iteritems():
+            if v is self or v is data or v is None:
+                continue
+            data[k] = v
+
+        if self.is_bulk:
+            self.bulk_data.append(data)
+            return
+
+        return self._make_request(data)
+
+    def _build_translation_object(self, json_object):
+        source_lang = json_object.get("source_language",None)
+        translation = json_object.get("translation",None)
+        status = json_object.get("status",None)
+
+        translators = [Translator.from_json(t) for t in json_object.get("translators",[])]
+
+        translation = Translation(
+            uid = json_object["uid"],
+            text = json_object["text"],
+            target_language = json_object.get('target_language', None),
+            source_language = json_object.get('source_language', None),
+            translation = json_object.get('translation', None),
+            status = json_object.get('status', None),
+            translators = translators,
+            topics = json_object.get('topics', None),
+            price = json_object.get('price', None),
+            balance = json_object.get('balance', None),
+            text_format = json_object.get('text_format', "text"),
+            origin = json_object.get('origin', None),
+            price_plan = json_object.get('price_plan', None),
+            client = json_object.get('client', None),
+        )
+        return translation
+
+
+    def _make_request(self, data):
+
+        #headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
+        if self.is_bulk:
+            f = requests.patch
+        else:
+            f = requests.post
+        result = f("%stranslation/"% self.api_url, headers=self.headers, data=json.dumps(data))
+        if result.status_code in (201, 202):
             json_object = json.loads(result.content)
-            translation = json_object.get("translation", None)
-
-            translators = [Translator.from_json(t) for t in
-                           json_object.get("translators", [])]
-
-            translation = Translation(
-                uid = json_object["uid"],
-                text = json_object["text"],
-                text_format = json_object['text_format'],
-                target_language = json_object['target_language'],
-                source_language = json_object['source_language'],
-                translation = translation,
-                status = json_object['status'],
-                translators = translators,
-                topics = json_object.get('topics', None),
-                price = json_object['price'],
-            )
-            return translation
+            toret = None
+            if self.is_bulk:
+                toret = []
+                for obj in json_object['objects']:
+                    toret.append(self._build_translation_object(obj))
+            else:
+                toret = self._build_translation_object(json_object)
+            return toret
         elif result.status_code == 401:
             raise UnauthorizedException(result.content)
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
-            raise Exception("Unknown Error")
+            raise Exception("Unknown Error return status %d: %s", result.status_code, result.content[0:100])
+
+
+
+    def start_bulk_transaction(self):
+        self.bulk_data = []
+        self.is_bulk = True
+
+    def _post_bulk(self):
+        data = {'objects' : self.bulk_data}
+        return self._make_request(data=data)
+
+    def post_bulk_translations(self, translations):
+        self.start_bulk_transaction()
+        for obj in translations:
+            obj = copy.deepcopy(obj)
+            text, target_language = obj['text'], obj['target_language']
+            del obj['text']
+            del obj['target_language']
+            self.post_translations(text, target_language, **obj)
+
+        return self._post_bulk()
+
+
 
     def get_translations(self):
         '''
@@ -356,6 +407,8 @@ class UnbabelApi(object):
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
+            logger.debug(result)
+
             raise Exception("Unknown Error")
 
     def post_job(self, order_id, text, source_language, target_language,
