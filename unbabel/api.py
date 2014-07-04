@@ -116,7 +116,6 @@ class Translation(object):
         price_plan = None,
         balance = None,
         client=None,
-
         ):
         self.uid = uid
         self.text = text
@@ -155,8 +154,9 @@ class Account(object):
 
 
 class Job(object):
-    def __init__(self, uid, order_id, status, source_language, target_language,
-                 text, price, priority, creation_date):
+    def __init__(self, id, uid, order_id, status, source_language, target_language,
+                 text, price, tone, text_format):
+        self.id = id
         self.uid = uid
         self.order_id = order_id
         self.status = status
@@ -164,12 +164,12 @@ class Job(object):
         self.price = price
         self.source_language = source_language
         self.target_language = target_language
-        self.creation_date = creation_date
-        self.priority = priority
+        self.tone = tone
+        self.text_format = text_format
 
     def __unicode__(self):
-        return u'order_id: {}, uid: {}, status: {}'.format(
-            self.order_id, self.uid, self.status)
+        return u'order_id: {}, id: {}, status: {}'.format(
+            self.order_id, self.id, self.status)
 
 
 class Order(object):
@@ -382,8 +382,8 @@ class UnbabelApi(object):
         account = Account(**account_data)
         return account
 
-    def post_order(self):
-        data = {} # no input data, it's just a clean post
+    def post_order(self, callback_url = None):
+        data = {callback_url: callback_url}
         result = self.api_call('order/', data)
         if result.status_code == 201:
             json_object = json.loads(result.content)
@@ -398,7 +398,6 @@ class UnbabelApi(object):
             raise BadRequestException(result.content)
         else:
             logger.debug(result)
-
             raise Exception("Unknown Error")
 
     def post_job(self, order_id, text, source_language, target_language,
@@ -407,7 +406,7 @@ class UnbabelApi(object):
                  callback_url=None, job_type='paid'):
 
         data = {
-            'order': order_id,
+            'order_id': order_id,
             'text': text,
             'target_text': target_text,
             'text_format': text_format,
@@ -429,15 +428,16 @@ class UnbabelApi(object):
             json_object = json.loads(result.content)
             #log.debug(json_object)
             job = Job(
+                id=json_object['id'],
                 uid=json_object['uid'],
-                order_id=json_object['order'],
-                status=json_object['status'],
-                text=json_object['text'],
+                order_id = json_object['order']['id'],
                 price=json_object['price'],
                 source_language=json_object['source_language'],
                 target_language=json_object['target_language'],
-                creation_date=json_object['creation_date'],
-                priority=json_object['priority']
+                tone=json_object['tone'],
+                text = json_object['text'],
+                status = json_object['status'],
+                text_format=json_object['text_format']
             )
             return job
         elif result.status_code == 401:
@@ -447,6 +447,20 @@ class UnbabelApi(object):
         else:
             log.debug('Got a HTTP Error [{}]'.format(result.status_code))
             #log.debug(result.content)
+            raise Exception("Unknown Error")
+
+    def pay_order(self, order_id):
+        data = { 'order_id': order_id }
+        result = self.api_call('pay/', data)
+
+        if result.status_code == 201:
+            return True
+        elif result.status_code == 401:
+            raise UnauthorizedException(result.content)
+        elif result.status_code == 400:
+            raise BadRequestException(result.content)
+        else:
+            logger.debug(result)
             raise Exception("Unknown Error")
 
     def get_word_count(self, text):

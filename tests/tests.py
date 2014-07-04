@@ -72,7 +72,7 @@ class TestUnbabelAPI(unittest.TestCase):
         self.assertEqual(translation.target_language, 'pt',
                          'Target language is not pt but %s'%translation.target_language)
         self.assertEqual(translation.text, data['text'])
-        self.assertEqual(translation.status, 'new', 'status is not new')
+        self.assertEqual(translation.status, 'New', 'Wrong status: [{}]'.format(translation.status))
         self.assertIsNone(translation.topics, 'Topics is not None')
         self.assertIsInstance(translation.translators, list,
                               'Translators is not a list')
@@ -122,7 +122,6 @@ class TestUnbabelAPI(unittest.TestCase):
         order = self.api.post_order()
         self.assertIsInstance(order, Order, 'Result is not an Order')
         self.assertIsNotNone(order.id, 'ID is None')
-        self.assertEqual(order.status, 'new', 'Order status is not new but %s'%order.status)
         self.assertEqual(order.price, 0, 'Price is not 0')
 
     def test_job_add_job_to_order(self):
@@ -138,7 +137,6 @@ class TestUnbabelAPI(unittest.TestCase):
         job = self.api.post_job(**data)
         self.assertIsInstance(job, Job)
         self.assertEqual(job.order_id, order.id, 'Order ID is not equal')
-        self.assertEqual(job.status, 'new', 'Job status is not new but %s'%job.status)
         self.assertEqual(job.text, data['text'], 'Job text is not correct')
         self.assertEqual(job.source_language, data['source_language'],
                          'Job source_language is not correct')
@@ -181,13 +179,11 @@ class TestUnbabelAPI(unittest.TestCase):
         job = self.api.post_job(**data)
         self.assertIsInstance(job, Job)
         self.assertEqual(job.order_id, order.id, 'Order ID is not equal')
-        self.assertEqual(job.status, 'new', 'Job status is not new but %s'%job.status)
         self.assertEqual(job.text, data['text'], 'Job text is not correct')
         self.assertEqual(job.source_language, data['source_language'],
                          'Job source_language is not correct')
         self.assertEqual(job.target_language, data['target_language'],
                          'Job target_language is not correct')
-
 
     def test_job_no_balance(self):
         self.UNBABEL_TEST_USERNAME="gracaninja-1"
@@ -211,6 +207,9 @@ class TestUnbabelAPI(unittest.TestCase):
         self.UNBABEL_TEST_API_KEY = os.environ.get('UNBABEL_TEST_API_KEY')
         if hasattr(self, '_api'): delattr(self, '_api')
 
+    def test_pay_order(self):
+        order = self.api.post_order()
+        self.assertTrue(self.api.pay_order(order.id))
 
 if __name__ == "__main__":
      unittest.main()
