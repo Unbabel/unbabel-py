@@ -161,7 +161,7 @@ class TestUnbabelAPI(unittest.TestCase):
 
         data = {
             'order_id': order.id,
-            'id': uuid.uuid4().hex,
+            'uid': uuid.uuid4().hex,
             'text': "This is a test translation",
             'source_language': 'en',
             'target_language': 'pt',
