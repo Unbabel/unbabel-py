@@ -454,8 +454,6 @@ class UnbabelApi(object):
         result = self.api_call('pay/', data)
 
         if result.status_code == 201:
-            json_object = json.loads(result.content)
-            order = Order(id, status, price)
             return True
         elif result.status_code == 401:
             raise UnauthorizedException(result.content)
