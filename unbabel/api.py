@@ -154,9 +154,10 @@ class Account(object):
 
 
 class Job(object):
-    def __init__(self, id, order_id, status, source_language, target_language,
+    def __init__(self, id, uid, order_id, status, source_language, target_language,
                  text, price, tone, text_format):
         self.id = id
+        self.uid = uid
         self.order_id = order_id
         self.status = status
         self.text = text
@@ -400,7 +401,7 @@ class UnbabelApi(object):
             raise Exception("Unknown Error")
 
     def post_job(self, order_id, text, source_language, target_language,
-                 target_text='', text_format="text", id=None, tone=None,
+                 target_text='', text_format="text", uid=None, tone=None,
                  topic=[], visibility=None, instructions='', public_url=None,
                  callback_url=None, job_type='paid'):
 
@@ -411,7 +412,7 @@ class UnbabelApi(object):
             'text_format': text_format,
             'source_language': source_language,
             'target_language': target_language,
-            'id': id,
+            'uid': uid,
             'tone': tone,
             'topic': topic,
             'visibility': visibility,
@@ -428,6 +429,7 @@ class UnbabelApi(object):
             #log.debug(json_object)
             job = Job(
                 id=json_object['id'],
+                uid=json_object['uid'],
                 order_id = json_object['order']['id'],
                 price=json_object['price'],
                 source_language=json_object['source_language'],
