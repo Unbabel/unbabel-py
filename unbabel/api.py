@@ -104,7 +104,7 @@ class Translation(object):
         self,
         uid = -1,
         text = "",
-        translation = None,
+        translatedText = None,
         target_language = "",
         source_language = None,
         status = None,
@@ -119,7 +119,7 @@ class Translation(object):
         ):
         self.uid = uid
         self.text = text
-        self.translation = translation
+        self.translation = translatedText
         self.source_language = source_language
         self.target_language = target_language
         self.status = status
