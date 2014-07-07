@@ -242,7 +242,7 @@ class UnbabelApi(object):
             text = json_object["text"],
             target_language = json_object.get('target_language', None),
             source_language = json_object.get('source_language', None),
-            translation = json_object.get('translation', None),
+            translatedText = json_object.get('translatedText', None),
             status = json_object.get('status', None),
             translators = translators,
             topics = json_object.get('topics', None),
