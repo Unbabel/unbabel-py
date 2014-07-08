@@ -219,7 +219,8 @@ class UnbabelApi(object):
                           topics = None,
                           instructions=None,
                           uid=None,
-                          text_format="text"
+                          text_format="text",
+                          target_text=None,
                           ):
         ## Collect args
         data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
