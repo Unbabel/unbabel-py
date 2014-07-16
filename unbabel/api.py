@@ -221,6 +221,7 @@ class UnbabelApi(object):
                           uid=None,
                           text_format="text",
                           target_text=None,
+                          origin = None,
                           ):
         ## Collect args
         data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
@@ -383,8 +384,15 @@ class UnbabelApi(object):
         account = Account(**account_data)
         return account
 
-    def post_order(self, callback_url = None):
-        data = {callback_url: callback_url}
+    def post_order(self,
+                   callback_url = None,
+                   origin = None):
+        data = {}
+        if callback_url is not None:
+            data["callback_url"] = callback_url
+        if origin is not None:
+            data["origin"] = origin
+
         result = self.api_call('order/', data)
         if result.status_code == 201:
             json_object = json.loads(result.content)
@@ -398,13 +406,24 @@ class UnbabelApi(object):
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
-            logger.debug(result)
+            log.debug(result)
             raise Exception("Unknown Error")
 
-    def post_job(self, order_id, text, source_language, target_language,
-                 target_text='', text_format="text", uid=None, tone=None,
-                 topic=[], visibility=None, instructions='', public_url=None,
-                 callback_url=None, job_type='paid'):
+    def post_job(self,
+                 order_id,
+                 text,
+                 source_language,
+                 target_language,
+                 target_text='',
+                 text_format="text",
+                 uid=None,
+                 tone=None,
+                 topic=[],
+                 visibility=None,
+                 instructions='',
+                 public_url=None,
+                 callback_url=None,
+                 job_type='paid'):
 
         data = {
             'order_id': order_id,
