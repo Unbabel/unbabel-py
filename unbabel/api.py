@@ -211,7 +211,7 @@ class UnbabelApi(object):
                           text,
                           target_language,
                           source_language=None,
-                          ttype=None,
+                          type=None,
                           tone=None,
                           visibility=None,
                           public_url=None,
@@ -465,7 +465,7 @@ class UnbabelApi(object):
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
-            log.debug('Got a HTTP Error [{}]'.format(result.status_code))
+            log.debug('Got a HTTP Error [{}] [{}]'.format(result.status_code,result.content))
             #log.debug(result.content)
             raise Exception("Unknown Error")
 
