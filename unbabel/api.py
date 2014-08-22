@@ -201,8 +201,11 @@ class UnbabelApi(object):
                                                    self.api_key),
             'content-type': 'application/json'}
 
-    def api_call(self, uri, data=None):
-        url = "{}{}".format(self.api_url, uri)
+    def api_call(self, uri, data=None, internal_api_call=False):
+        api_url = self.api_url
+        if internal_api_call:
+            api_url = api_url.replace('/tapi/v2/', '/api/v1/')
+        url = "{}{}".format(api_url, uri)
         if data is None:
             return requests.get(url, headers=self.headers)
         return requests.post(url, headers=self.headers, data=json.dumps(data))
@@ -319,7 +322,6 @@ class UnbabelApi(object):
                          result.status_code))
             translations = []
         return translations
-
 
     def get_translation(self, uid):
         '''
@@ -492,6 +494,16 @@ class UnbabelApi(object):
         else:
             log.debug('Got a HTTP Error [{}]'.format(result.status_code))
             raise Exception("Unknown Error")
+
+
+    def get_user(self):
+        result = self.api_call('app/user/', internal_api_call=True)
+
+        if result.status_code == 200:
+            return json.loads(result.content)
+        else:
+            log.debug('Got a HTTP Error [{}]'.format(result.status_code))
+            raise Exception("Unknown Error: %s" % result.status_code)
 
 
 __all__ = ['UnbabelApi']
