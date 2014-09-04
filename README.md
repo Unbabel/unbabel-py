@@ -4,7 +4,7 @@ Python SDK for the Unbabel REST API
 Documentation:
 =============
 
-Please visit our documentation page at https://github.com/Unbabel
+Please visit our documentation page at https://github.com/Unbabel/unbabel_api
 
 
 
