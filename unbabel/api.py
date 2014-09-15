@@ -16,7 +16,7 @@ import copy
 UNBABEL_SANDBOX_API_URL = os.environ.get('UNBABEL_SANDOX_API_URL',
                                          "http://sandbox.unbabel.com/tapi/v2/")
 UNBABEL_API_URL = os.environ.get('UNBABEL_API_URL',
-                                 "https://www.unbabel.co/tapi/v2/")
+                                 "https://www.unbabel.com/tapi/v2/")
 
 
 class UnauthorizedException(Exception):
@@ -197,8 +197,7 @@ class UnbabelApi(object):
         self.api_url = api_url
         self.is_bulk = False
         self.headers = {
-            'Authorization': 'ApiKey {}:{}'.format(self.username,
-                                                   self.api_key),
+            'Authorization': 'ApiKey {}:{}'.format(self.username, self.api_key),
             'content-type': 'application/json'}
 
     def api_call(self, uri, data=None, internal_api_call=False):
