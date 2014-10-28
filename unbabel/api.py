@@ -317,7 +317,7 @@ class UnbabelApi(object):
             translations_json = json.loads(result.content)["objects"]
             translations = [Translation(**tj) for tj in translations_json]
         else:
-            log.critical('Error status when requesting translation from server: {}!'.format(
+            log.critical('Error status when fetching translation from server: {}!'.format(
                          result.status_code))
             translations = []
         return translations
@@ -327,7 +327,12 @@ class UnbabelApi(object):
             Returns a translation with the given id
         '''
         result = self.api_call('translation/{}/'.format(uid))
-        translation = Translation(**json.loads(result.content))
+        if result.status_code == 200:
+            translation = Translation(**json.loads(result.content))
+        else:
+            log.critical('Error status when fetching translation from server: {}!'.format(
+                         result.status_code))
+            raise ValueError(result.content)
         return translation
 
     def get_language_pairs(self, train_langs=None):
