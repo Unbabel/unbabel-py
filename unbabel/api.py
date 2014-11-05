@@ -308,11 +308,14 @@ class UnbabelApi(object):
 
 
 
-    def get_translations(self):
+    def get_translations(self,status=None):
         '''
             Returns the translations requested by the user
         '''
-        result = self.api_call('translation/')
+        if status is not None:
+            result = self.api_call('translation/?status=%s'%status)
+        else:
+            result = self.api_call('translation/')
         if result.status_code == 200:
             translations_json = json.loads(result.content)["objects"]
             translations = [Translation(**tj) for tj in translations_json]
