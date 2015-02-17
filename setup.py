@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='unbabel-py',
-      version='0.39',
+      version='0.40',
       description='Python Wrapper around Unbabel HTTP API',
       author='Joao Graca',
       author_email='gracaninja@unbabel.co',
