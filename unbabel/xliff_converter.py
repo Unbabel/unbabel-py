@@ -36,7 +36,7 @@ def generate_xliff(entry_dict):
 def get_head_xliff():
     return '''
 <xliff version = "1.2">
-<file original = "" source-language = "en" target-language = "fr">
+<file original = "" source-language = "" target-language = "">
 <head> </head>
 <body>
     '''
