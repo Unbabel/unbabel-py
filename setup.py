@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='unbabel-py',
-      version='0.40',
+      version='0.41',
       description='Python Wrapper around Unbabel HTTP API',
       author='Joao Graca',
       author_email='gracaninja@unbabel.co',
@@ -13,6 +13,7 @@ setup(name='unbabel-py',
         },
       install_requires=[
         'requests',
+        'beautifulsoup4',
           ],
       url = 'https://github.com/Unbabel/unbabel-py',
       download_url = 'https://github.com/Unbabel/unbabel-py/tarball/0.1',
