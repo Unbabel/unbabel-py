@@ -63,7 +63,10 @@ def get_dictionary_from_xliff(xliff_text,side="target"):
     for trans_unit in trans_units:
         _id = trans_unit["id"]
         if side == "target":
-            result_dic[_id] = trans_unit.target.text.strip()
+            if trans_unit.target is None:
+                result_dic[_id] = trans_unit.source.text.strip()
+            else:
+                result_dic[_id] = trans_unit.target.text.strip()
         else:
             result_dic[_id] = trans_unit.source.text.strip()
     return result_dic
