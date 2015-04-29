@@ -224,6 +224,7 @@ class UnbabelApi(object):
                           text_format="text",
                           target_text=None,
                           origin = None,
+                          client_owner_email=None,
                           ):
         ## Collect args
         data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
