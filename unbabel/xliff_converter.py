@@ -57,7 +57,7 @@ def create_trans_unit(key, value):
            '''%(key,value)
 
 def get_dictionary_from_xliff(xliff_text,side="target"):
-    soup = BeautifulSoup(xliff_text)
+    soup = BeautifulSoup(xliff_text, "html.parser")
     trans_units = soup.find_all("trans-unit")
     result_dic = {}
     for trans_unit in trans_units:
