@@ -9,7 +9,7 @@ setup(name='unbabel-py',
           'unbabel',
           ],
       package_dir={
-        'unbabel': 'unbabel/',
+        'unbabel': 'unbabel',
         },
       install_requires=[
         'requests',
