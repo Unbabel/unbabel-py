@@ -141,6 +141,41 @@ class Translation(object):
             self.uid, self.status, self.source_language, self.target_language)
 
 
+class MTTranslation(object):
+    def __init__(
+        self,
+        uid = -1,
+        text = "",
+        translatedText = None,
+        target_language = "",
+        source_language = None,
+        status = None,
+        topics = None,
+        text_format = 'text',
+        origin = None,
+        client=None,
+        ):
+        self.uid = uid
+        self.text = text
+        self.translation = translatedText
+        self.source_language = source_language
+        self.target_language = target_language
+        self.status = status
+        self.topics = topics
+        self.text_format = text_format
+        self.origin = origin
+        self.client = client
+
+    def __repr__(self):
+        return "%s %s %s_%s" % (
+            self.uid, self.status, self.source_language, self.target_language)
+
+    def __str__(self):
+        return "%s %s %s_%s" % (
+            self.uid, self.status, self.source_language, self.target_language)
+
+
+
 class Account(object):
     def __init__(self, username, email, balance):
         self.username = username
@@ -235,6 +270,35 @@ class UnbabelApi(object):
 
         return self._make_request(data)
 
+
+    def post_mt_translations(self,
+                              text,
+                              target_language,
+                              source_language=None,
+                              tone=None,
+                              callback_url = None,
+                              topics = None,
+                              instructions=None,
+                              uid=None,
+                              text_format="text",
+                              origin = None,
+                              client_owner_email=None,
+                              ):
+        ## Collect args
+        data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
+
+        result = requests.post("%smt_translation/"% self.api_url, headers=self.headers, data=json.dumps(data))
+        if result.status_code in (201, 202):
+            json_object = json.loads(result.content)
+            toret = self._build_mt_translation_object(json_object)
+            return toret
+        elif result.status_code == 401:
+            raise UnauthorizedException(result.content)
+        elif result.status_code == 400:
+            raise BadRequestException(result.content)
+        else:
+            raise Exception("Unknown Error return status %d: %s", result.status_code, result.content[0:100])
+
     def _build_translation_object(self, json_object):
         source_lang = json_object.get("source_language",None)
         translation = json_object.get("translation",None)
@@ -256,6 +320,26 @@ class UnbabelApi(object):
             text_format = json_object.get('text_format', "text"),
             origin = json_object.get('origin', None),
             price_plan = json_object.get('price_plan', None),
+            client = json_object.get('client', None),
+        )
+        return translation
+
+
+    def _build_mt_translation_object(self, json_object):
+        source_lang = json_object.get("source_language",None)
+        translation = json_object.get("translation",None)
+        status = json_object.get("status",None)
+
+        translation = MTTranslation(
+            uid = json_object["uid"],
+            text = json_object["text"],
+            target_language = json_object.get('target_language', None),
+            source_language = json_object.get('source_language', None),
+            translatedText = json_object.get('translatedText', None),
+            status = json_object.get('status', None),
+            topics = json_object.get('topics', None),
+            text_format = json_object.get('text_format', "text"),
+            origin = json_object.get('origin', None),
             client = json_object.get('client', None),
         )
         return translation
@@ -335,6 +419,44 @@ class UnbabelApi(object):
             translation = Translation(**json.loads(result.content))
         else:
             log.critical('Error status when fetching translation from server: {}!'.format(
+                         result.status_code))
+            raise ValueError(result.content)
+        return translation
+
+    def upgrade_mt_translation(self, uid):
+        api_url = self.api_url
+        uri = 'mt_translation/{}/'.format(uid)
+        url = "{}{}".format(api_url, uri)
+        data = {"status":"upgrade"}
+        return requests.patch(url, headers=self.headers, data=json.dumps(data))
+
+
+    def get_mt_translations(self,status=None):
+        '''
+            Returns the translations requested by the user
+        '''
+        if status is not None:
+            result = self.api_call('mt_translation/?status=%s'%status)
+        else:
+            result = self.api_call('mt_translation/')
+        if result.status_code == 200:
+            translations_json = json.loads(result.content)["objects"]
+            translations = [Translation(**tj) for tj in translations_json]
+        else:
+            log.critical('Error status when fetching machine translation from server: {}!'.format(
+                         result.status_code))
+            translations = []
+        return translations
+
+    def get_mt_translation(self, uid):
+        '''
+            Returns a translation with the given id
+        '''
+        result = self.api_call('mt_translation/{}/'.format(uid))
+        if result.status_code == 200:
+            translation = Translation(**json.loads(result.content))
+        else:
+            log.critical('Error status when fetching machine translation from server: {}!'.format(
                          result.status_code))
             raise ValueError(result.content)
         return translation
