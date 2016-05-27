@@ -115,8 +115,7 @@ class Translation(object):
         origin = None,
         price_plan = None,
         balance = None,
-        client=None,
-        ):
+        client=None):
         self.uid = uid
         self.text = text
         self.translation = translatedText
@@ -153,8 +152,7 @@ class MTTranslation(object):
         topics = None,
         text_format = 'text',
         origin = None,
-        client=None,
-        ):
+        client=None):
         self.uid = uid
         self.text = text
         self.translation = translatedText
@@ -270,7 +268,6 @@ class UnbabelApi(object):
 
         return self._make_request(data)
 
-
     def post_mt_translations(self,
                               text,
                               target_language,
@@ -282,9 +279,8 @@ class UnbabelApi(object):
                               uid=None,
                               text_format="text",
                               origin = None,
-                              client_owner_email=None,
-                              ):
-        ## Collect args
+                              client_owner_email=None):
+        # Collect args
         data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
 
         result = requests.post("%smt_translation/"% self.api_url, headers=self.headers, data=json.dumps(data))
@@ -324,7 +320,6 @@ class UnbabelApi(object):
         )
         return translation
 
-
     def _build_mt_translation_object(self, json_object):
         source_lang = json_object.get("source_language",None)
         translation = json_object.get("translation",None)
@@ -343,7 +338,6 @@ class UnbabelApi(object):
             client = json_object.get('client', None),
         )
         return translation
-
 
     def _make_request(self, data):
 
@@ -370,8 +364,6 @@ class UnbabelApi(object):
         else:
             raise Exception("Unknown Error return status %d: %s", result.status_code, result.content[0:100])
 
-
-
     def start_bulk_transaction(self):
         self.bulk_data = []
         self.is_bulk = True
@@ -390,8 +382,6 @@ class UnbabelApi(object):
             self.post_translations(text, target_language, **obj)
 
         return self._post_bulk()
-
-
 
     def get_translations(self,status=None):
         '''
@@ -423,15 +413,20 @@ class UnbabelApi(object):
             raise ValueError(result.content)
         return translation
 
-    def upgrade_mt_translation(self, uid):
+    def upgrade_mt_translation(self, uid, properties=None):
+        """
+        :param uid:
+        :param properties: This is suppose to be a dictionary with new
+        properties values to be replaced on the upgraded job
+        :return:
+        """
         api_url = self.api_url
         uri = 'mt_translation/{}/'.format(uid)
         url = "{}{}".format(api_url, uri)
-        data = {"status":"upgrade"}
+        data = {"status": "upgrade", "properties": properties}
         return requests.patch(url, headers=self.headers, data=json.dumps(data))
 
-
-    def get_mt_translations(self,status=None):
+    def get_mt_translations(self, status=None):
         '''
             Returns the translations requested by the user
         '''
@@ -516,7 +511,6 @@ class UnbabelApi(object):
         account = Account(**account_data)
         return account
 
-
     def get_word_count(self, text):
         result = self.api_call('wordcount/', {"text": text})
 
@@ -526,7 +520,6 @@ class UnbabelApi(object):
         else:
             log.debug('Got a HTTP Error [{}]'.format(result.status_code))
             raise Exception("Unknown Error")
-
 
     def get_user(self):
         result = self.api_call('app/user/', internal_api_call=True)
