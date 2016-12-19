@@ -478,9 +478,9 @@ class UnbabelApi(object):
                                            name=lang_json["lang_pair"][
                                                "target_language"]["name"])
             ) for lang_json in langs_json["objects"]]
-        except:
+        except Exception, e:
             log.exception("Error decoding get language pairs")
-            languages = []
+            raise e
         return languages
 
     def get_tones(self):
