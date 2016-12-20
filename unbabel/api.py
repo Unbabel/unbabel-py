@@ -6,17 +6,17 @@ Created on Dec 13, 2013
 import json
 import logging
 import os
+import copy
 import requests
 
 
 log = logging.getLogger()
-import copy
 
 
 UNBABEL_SANDBOX_API_URL = os.environ.get('UNBABEL_SANDOX_API_URL',
                                          "http://sandbox.unbabel.com/tapi/v2/")
 UNBABEL_API_URL = os.environ.get('UNBABEL_API_URL',
-                                 "https://unbabel.com/tapi/v2/")
+                                 "https://api.unbabel.com/tapi/v2/")
 
 
 class UnauthorizedException(Exception):
