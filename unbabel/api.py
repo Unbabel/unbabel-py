@@ -115,7 +115,8 @@ class Translation(object):
         origin = None,
         price_plan = None,
         balance = None,
-        client=None):
+        client=None,
+        order_number=None):
         self.uid = uid
         self.text = text
         self.translation = translatedText
@@ -130,6 +131,7 @@ class Translation(object):
         self.price_plan = price_plan
         self.client = client
         self.balance = balance
+        self.order_number = order_number
 
     def __repr__(self):
         return "%s %s %s_%s" % (
