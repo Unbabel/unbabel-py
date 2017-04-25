@@ -118,6 +118,17 @@ class TestUnbabelAPI(unittest.TestCase):
         self.assertTrue(all(isinstance(t, Translation) for t in translations),
             'Items are not all instance of Translation')
 
+    def test_api_cancel_translation(self):
+        data = {
+            'text': "This is a test translation",
+            'source_language': 'en',
+            'target_language': 'pt',
+        }
+        self.api.post_translations(**data)
+        translations = self.api.get_translations()
+        translation = translations[0]
+        self.assertEqual(translation.status, 'canceled')
+
     def test_order_post(self):
         order = self.api.post_order()
         self.assertIsInstance(order, Order, 'Result is not an Order')
