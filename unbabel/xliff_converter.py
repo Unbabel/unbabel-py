@@ -28,7 +28,7 @@ def generate_xliff(entry_dict):
 
     """
     entries = ""
-    for key,value in entry_dict.iteritems():
+    for key,value in list(entry_dict.items()):
         entries+=create_trans_unit(key,value).strip()+"\n"
     xliff_str = get_head_xliff().strip()+"\n"+entries+get_tail_xliff().strip()
     return xliff_str

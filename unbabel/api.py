@@ -3,15 +3,14 @@ Created on Dec 13, 2013
 
 @author: joaograca
 '''
+from builtins import object
 import json
 import logging
 import os
 import requests
-
-
-log = logging.getLogger()
 import copy
 
+log = logging.getLogger()
 
 UNBABEL_SANDBOX_API_URL = os.environ.get('UNBABEL_SANDOX_API_URL',
                                          "http://sandbox.unbabel.com/tapi/v2/")
@@ -262,7 +261,7 @@ class UnbabelApi(object):
                           client_owner_email=None,
                           ):
         ## Collect args
-        data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
+        data = {k: v for k, v in list(locals().items()) if not v in (self, None)}
 
         if self.is_bulk:
             self.bulk_data.append(data)
@@ -283,7 +282,7 @@ class UnbabelApi(object):
                               origin = None,
                               client_owner_email=None):
         # Collect args
-        data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
+        data = {k: v for k, v in list(locals().items()) if not v in (self, None)}
 
         result = requests.post("%smt_translation/"% self.api_url, headers=self.headers, data=json.dumps(data))
         if result.status_code in (201, 202):
@@ -480,7 +479,7 @@ class UnbabelApi(object):
                                            name=lang_json["lang_pair"][
                                                "target_language"]["name"])
             ) for lang_json in langs_json["objects"]]
-        except Exception, e:
+        except Exception as e:
             log.exception("Error decoding get language pairs")
             raise e
         return languages
