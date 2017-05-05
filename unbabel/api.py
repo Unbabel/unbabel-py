@@ -16,7 +16,7 @@ import copy
 UNBABEL_SANDBOX_API_URL = os.environ.get('UNBABEL_SANDOX_API_URL',
                                          "http://sandbox.unbabel.com/tapi/v2/")
 UNBABEL_API_URL = os.environ.get('UNBABEL_API_URL',
-                                 "https://unbabel.com/tapi/v2/")
+                                 "http://localhost:8000/tapi/v2/")
 
 
 class UnauthorizedException(Exception):
