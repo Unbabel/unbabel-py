@@ -3,10 +3,8 @@ import logging
 import os
 import requests
 
-
 log = logging.getLogger()
 import copy
-
 
 UNBABEL_SANDBOX_API_URL = os.environ.get(
     'UNBABEL_SANDOX_API_URL', 'https://sandbox.unbabel.com/tapi/v2/')
@@ -96,22 +94,22 @@ class Translator(object):
 
 class Translation(object):
     def __init__(
-        self,
-        uid = -1,
-        text = "",
-        translatedText = None,
-        target_language = "",
-        source_language = None,
-        status = None,
-        translators = [],
-        topics = None,
-        price = None,
-        text_format = 'text',
-        origin = None,
-        price_plan = None,
-        balance = None,
-        client=None,
-        order_number=None):
+            self,
+            uid=-1,
+            text="",
+            translatedText=None,
+            target_language="",
+            source_language=None,
+            status=None,
+            translators=[],
+            topics=None,
+            price=None,
+            text_format='text',
+            origin=None,
+            price_plan=None,
+            balance=None,
+            client=None,
+            order_number=None):
         self.uid = uid
         self.text = text
         self.translation = translatedText
@@ -139,17 +137,17 @@ class Translation(object):
 
 class MTTranslation(object):
     def __init__(
-        self,
-        uid = -1,
-        text = "",
-        translatedText = None,
-        target_language = "",
-        source_language = None,
-        status = None,
-        topics = None,
-        text_format = 'text',
-        origin = None,
-        client=None):
+            self,
+            uid=-1,
+            text="",
+            translatedText=None,
+            target_language="",
+            source_language=None,
+            status=None,
+            topics=None,
+            text_format='text',
+            origin=None,
+            client=None):
         self.uid = uid
         self.text = text
         self.translation = translatedText
@@ -170,7 +168,6 @@ class MTTranslation(object):
             self.uid, self.status, self.source_language, self.target_language)
 
 
-
 class Account(object):
     def __init__(self, username, email, balance):
         self.username = username
@@ -184,7 +181,8 @@ class Account(object):
 
 
 class Job(object):
-    def __init__(self, id, uid, order_id, status, source_language, target_language,
+    def __init__(self, id, uid, order_id, status, source_language,
+                 target_language,
                  text, price, tone, text_format):
         self.id = id
         self.uid = uid
@@ -227,7 +225,8 @@ class UnbabelApi(object):
         self.api_url = api_url
         self.is_bulk = False
         self.headers = {
-            'Authorization': 'ApiKey {}:{}'.format(self.username, self.api_key),
+            'Authorization': 'ApiKey {}:{}'.format(self.username,
+                                                   self.api_key),
             'content-type': 'application/json'}
 
     def api_call(self, uri, data=None, internal_api_call=False):
@@ -247,13 +246,13 @@ class UnbabelApi(object):
                           tone=None,
                           visibility=None,
                           public_url=None,
-                          callback_url = None,
-                          topics = None,
+                          callback_url=None,
+                          topics=None,
                           instructions=None,
                           uid=None,
                           text_format="text",
                           target_text=None,
-                          origin = None,
+                          origin=None,
                           client_owner_email=None,
                           ):
         ## Collect args
@@ -266,21 +265,22 @@ class UnbabelApi(object):
         return self._make_request(data)
 
     def post_mt_translations(self,
-                              text,
-                              target_language,
-                              source_language=None,
-                              tone=None,
-                              callback_url = None,
-                              topics = None,
-                              instructions=None,
-                              uid=None,
-                              text_format="text",
-                              origin = None,
-                              client_owner_email=None):
+                             text,
+                             target_language,
+                             source_language=None,
+                             tone=None,
+                             callback_url=None,
+                             topics=None,
+                             instructions=None,
+                             uid=None,
+                             text_format="text",
+                             origin=None,
+                             client_owner_email=None):
         # Collect args
         data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
 
-        result = requests.post("%smt_translation/"% self.api_url, headers=self.headers, data=json.dumps(data))
+        result = requests.post("%smt_translation/" % self.api_url,
+                               headers=self.headers, data=json.dumps(data))
         if result.status_code in (201, 202):
             json_object = json.loads(result.content)
             toret = self._build_mt_translation_object(json_object)
@@ -290,60 +290,64 @@ class UnbabelApi(object):
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
-            raise Exception("Unknown Error return status %d: %s", result.status_code, result.content[0:100])
+            raise Exception("Unknown Error return status %d: %s",
+                            result.status_code, result.content[0:100])
 
     def _build_translation_object(self, json_object):
-        source_lang = json_object.get("source_language",None)
-        translation = json_object.get("translation",None)
-        status = json_object.get("status",None)
+        source_lang = json_object.get("source_language", None)
+        translation = json_object.get("translation", None)
+        status = json_object.get("status", None)
 
-        translators = [Translator.from_json(t) for t in json_object.get("translators",[])]
+        translators = [Translator.from_json(t) for t in
+                       json_object.get("translators", [])]
 
         translation = Translation(
-            uid = json_object["uid"],
-            text = json_object["text"],
-            target_language = json_object.get('target_language', None),
-            source_language = json_object.get('source_language', None),
-            translatedText = json_object.get('translatedText', None),
-            status = json_object.get('status', None),
-            translators = translators,
-            topics = json_object.get('topics', None),
-            price = json_object.get('price', None),
-            balance = json_object.get('balance', None),
-            text_format = json_object.get('text_format', "text"),
-            origin = json_object.get('origin', None),
-            price_plan = json_object.get('price_plan', None),
-            client = json_object.get('client', None),
+            uid=json_object["uid"],
+            text=json_object["text"],
+            target_language=json_object.get('target_language', None),
+            source_language=json_object.get('source_language', None),
+            translatedText=json_object.get('translatedText', None),
+            status=json_object.get('status', None),
+            translators=translators,
+            topics=json_object.get('topics', None),
+            price=json_object.get('price', None),
+            balance=json_object.get('balance', None),
+            text_format=json_object.get('text_format', "text"),
+            origin=json_object.get('origin', None),
+            price_plan=json_object.get('price_plan', None),
+            client=json_object.get('client', None),
         )
         return translation
 
     def _build_mt_translation_object(self, json_object):
-        source_lang = json_object.get("source_language",None)
-        translation = json_object.get("translation",None)
-        status = json_object.get("status",None)
+        source_lang = json_object.get("source_language", None)
+        translation = json_object.get("translation", None)
+        status = json_object.get("status", None)
 
         translation = MTTranslation(
-            uid = json_object["uid"],
-            text = json_object["text"],
-            target_language = json_object.get('target_language', None),
-            source_language = json_object.get('source_language', None),
-            translatedText = json_object.get('translatedText', None),
-            status = json_object.get('status', None),
-            topics = json_object.get('topics', None),
-            text_format = json_object.get('text_format', "text"),
-            origin = json_object.get('origin', None),
-            client = json_object.get('client', None),
+            uid=json_object["uid"],
+            text=json_object["text"],
+            target_language=json_object.get('target_language', None),
+            source_language=json_object.get('source_language', None),
+            translatedText=json_object.get('translatedText', None),
+            status=json_object.get('status', None),
+            topics=json_object.get('topics', None),
+            text_format=json_object.get('text_format', "text"),
+            origin=json_object.get('origin', None),
+            client=json_object.get('client', None),
         )
         return translation
 
     def _make_request(self, data):
 
-        #headers={'Authorization': 'ApiKey %s:%s'%(self.username,self.api_key),'content-type': 'application/json'}
+        # headers={'Authorization': 'ApiKey %s:%s'%(self.username,
+        # self.api_key),'content-type': 'application/json'}
         if self.is_bulk:
             f = requests.patch
         else:
             f = requests.post
-        result = f("%stranslation/"% self.api_url, headers=self.headers, data=json.dumps(data))
+        result = f("%stranslation/" % self.api_url, headers=self.headers,
+                   data=json.dumps(data))
         if result.status_code in (201, 202):
             json_object = json.loads(result.content)
             toret = None
@@ -359,14 +363,15 @@ class UnbabelApi(object):
         elif result.status_code == 400:
             raise BadRequestException(result.content)
         else:
-            raise Exception("Unknown Error return status %d: %s", result.status_code, result.content[0:100])
+            raise Exception("Unknown Error return status %d: %s",
+                            result.status_code, result.content[0:100])
 
     def start_bulk_transaction(self):
         self.bulk_data = []
         self.is_bulk = True
 
     def _post_bulk(self):
-        data = {'objects' : self.bulk_data}
+        data = {'objects': self.bulk_data}
         return self._make_request(data=data)
 
     def post_bulk_translations(self, translations):
@@ -380,20 +385,22 @@ class UnbabelApi(object):
 
         return self._post_bulk()
 
-    def get_translations(self,status=None):
+    def get_translations(self, status=None):
         '''
             Returns the translations requested by the user
         '''
         if status is not None:
-            result = self.api_call('translation/?status=%s'%status)
+            result = self.api_call('translation/?status=%s' % status)
         else:
             result = self.api_call('translation/')
         if result.status_code == 200:
             translations_json = json.loads(result.content)["objects"]
             translations = [Translation(**tj) for tj in translations_json]
         else:
-            log.critical('Error status when fetching translation from server: {}!'.format(
-                         result.status_code))
+            log.critical(
+                'Error status when fetching translation from server: {'
+                '}!'.format(
+                    result.status_code))
             translations = []
         return translations
 
@@ -405,8 +412,10 @@ class UnbabelApi(object):
         if result.status_code == 200:
             translation = Translation(**json.loads(result.content))
         else:
-            log.critical('Error status when fetching translation from server: {}!'.format(
-                         result.status_code))
+            log.critical(
+                'Error status when fetching translation from server: {'
+                '}!'.format(
+                    result.status_code))
             raise ValueError(result.content)
         return translation
 
@@ -428,15 +437,17 @@ class UnbabelApi(object):
             Returns the translations requested by the user
         '''
         if status is not None:
-            result = self.api_call('mt_translation/?status=%s'%status)
+            result = self.api_call('mt_translation/?status=%s' % status)
         else:
             result = self.api_call('mt_translation/')
         if result.status_code == 200:
             translations_json = json.loads(result.content)["objects"]
             translations = [Translation(**tj) for tj in translations_json]
         else:
-            log.critical('Error status when fetching machine translation from server: {}!'.format(
-                         result.status_code))
+            log.critical(
+                'Error status when fetching machine translation from server: '
+                '{}!'.format(
+                    result.status_code))
             translations = []
         return translations
 
@@ -448,8 +459,10 @@ class UnbabelApi(object):
         if result.status_code == 200:
             translation = Translation(**json.loads(result.content))
         else:
-            log.critical('Error status when fetching machine translation from server: {}!'.format(
-                         result.status_code))
+            log.critical(
+                'Error status when fetching machine translation from server: '
+                '{}!'.format(
+                    result.status_code))
             raise ValueError(result.content)
         return translation
 
@@ -470,10 +483,10 @@ class UnbabelApi(object):
                 shortname=lang_json["lang_pair"]["source_language"][
                     "shortname"],
                 name=lang_json["lang_pair"]["source_language"]["name"]),
-                                  Language(shortname=lang_json["lang_pair"][
-                                      "target_language"]["shortname"],
-                                           name=lang_json["lang_pair"][
-                                               "target_language"]["name"])
+                Language(shortname=lang_json["lang_pair"][
+                    "target_language"]["shortname"],
+                         name=lang_json["lang_pair"][
+                             "target_language"]["name"])
             ) for lang_json in langs_json["objects"]]
         except Exception, e:
             log.exception("Error decoding get language pairs")
