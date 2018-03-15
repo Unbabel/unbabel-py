@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='unbabel-py',
-      version='0.49',
+      version='0.50',
       description='Python Wrapper around Unbabel HTTP API',
       author='Joao Graca',
       author_email='joao@unbabel.com',
@@ -12,7 +12,7 @@ setup(name='unbabel-py',
           'beautifulsoup4',
       ],
       url='https://github.com/Unbabel/unbabel-py',
-      download_url='https://github.com/Unbabel/unbabel-py/archive/0.49.tar.gz',
+      download_url='https://github.com/Unbabel/unbabel-py/archive/0.50.tar.gz',
       classifiers=['Development Status :: 4 - Beta',
                    'Intended Audience :: Developers',
                    'Programming Language :: Python ',
