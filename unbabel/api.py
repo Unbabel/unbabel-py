@@ -229,12 +229,14 @@ class UnbabelApi(object):
                                                    self.api_key),
             'content-type': 'application/json'}
 
-    def api_call(self, uri, data=None, internal_api_call=False):
+    def api_call(self, uri, data=None, internal_api_call=False, delete=False):
         api_url = self.api_url
         if internal_api_call:
             api_url = api_url.replace('/tapi/v2/', '/api/v1/')
         url = "{}{}".format(api_url, uri)
-        if data is None:
+        if delete is True:
+            return requests.delete(url, headers=self.headers)
+        elif data is None:
             return requests.get(url, headers=self.headers)
         return requests.post(url, headers=self.headers, data=json.dumps(data))
 
@@ -391,6 +393,19 @@ class UnbabelApi(object):
                 'Error status when fetching translation from server: {'
                 '}!'.format(
                     result.status_code))
+            raise ValueError(result.content)
+        return translation
+
+    def cancel_translation(self, uid):
+        '''
+            Cancel a translation with the given id
+        '''
+        result = self.api_call('translation/{}/'.format(uid), delete=True)
+        if result.status_code == 200:
+            translation = Translation(**json.loads(result.content))
+        else:
+            log.critical('Error status when fetching translation from server: {}!'.format(
+                         result.status_code))
             raise ValueError(result.content)
         return translation
 
