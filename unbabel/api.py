@@ -103,7 +103,7 @@ class Translation(object):
             target_language="",
             source_language=None,
             status=None,
-            translators=[],
+            translators=None,
             topics=None,
             price=None,
             text_format='text',
@@ -112,6 +112,9 @@ class Translation(object):
             balance=None,
             client=None,
             order_number=None):
+        if translators is None:
+            translators = []
+
         self.uid = uid
         self.text = text
         self.translation = translatedText
@@ -259,7 +262,7 @@ class UnbabelApi(object):
         result = requests.post("%smt_translation/" % self.api_url,
                                headers=self.headers, data=json.dumps(data))
         if result.status_code in (201, 202):
-            json_object = json.loads(result.content)
+            json_object = result.json()
             toret = self._build_mt_translation_object(json_object)
             return toret
         elif result.status_code == 401:
@@ -326,7 +329,7 @@ class UnbabelApi(object):
         result = f("%stranslation/" % self.api_url, headers=self.headers,
                    data=json.dumps(data))
         if result.status_code in (201, 202):
-            json_object = json.loads(result.content)
+            json_object = result.json()
             toret = None
             if self.is_bulk:
                 toret = []
@@ -371,7 +374,7 @@ class UnbabelApi(object):
         else:
             result = self.api_call('translation/')
         if result.status_code == 200:
-            translations_json = json.loads(result.content)["objects"]
+            translations_json = result.json()["objects"]
             translations = [Translation(**tj) for tj in translations_json]
         else:
             log.critical(
@@ -387,7 +390,7 @@ class UnbabelApi(object):
         '''
         result = self.api_call('translation/{}/'.format(uid))
         if result.status_code == 200:
-            translation = Translation(**json.loads(result.content))
+            translation = Translation(**result.json())
         else:
             log.critical(
                 'Error status when fetching translation from server: {'
@@ -418,7 +421,7 @@ class UnbabelApi(object):
         else:
             result = self.api_call('mt_translation/')
         if result.status_code == 200:
-            translations_json = json.loads(result.content)["objects"]
+            translations_json = result.json()["objects"]
             translations = [Translation(**tj) for tj in translations_json]
         else:
             log.critical(
@@ -434,7 +437,7 @@ class UnbabelApi(object):
         '''
         result = self.api_call('mt_translation/{}/'.format(uid))
         if result.status_code == 200:
-            translation = Translation(**json.loads(result.content))
+            translation = Translation(**result.json())
         else:
             log.critical(
                 'Error status when fetching machine translation from server: '
@@ -453,7 +456,7 @@ class UnbabelApi(object):
             result = self.api_call(
                 'language_pair/?train_langs={}'.format(train_langs))
         try:
-            langs_json = json.loads(result.content)
+            langs_json = result.json()
             if 'error' in langs_json:
                 return []
             languages = [LangPair(Language(
@@ -475,7 +478,7 @@ class UnbabelApi(object):
             Returns the tones available on unbabel
         '''
         result = self.api_call('tone/')
-        tones_json = json.loads(result.content)
+        tones_json = result.json()
         tones = [Tone(name=tone_json["tone"]["name"],
                       description=tone_json["tone"]["description"])
                  for tone_json in tones_json["objects"]]
@@ -486,14 +489,14 @@ class UnbabelApi(object):
             Returns the topics available on unbabel
         '''
         result = self.api_call('topic/')
-        topics_json = json.loads(result.content)
+        topics_json = result.json()
         topics = [Topic(name=topic_json["topic"]["name"])
                   for topic_json in topics_json["objects"]]
         return topics
 
     def get_account(self):
         result = self.api_call('account/')
-        account_json = json.loads(result.content)
+        account_json = result.json()
         account_data = account_json['objects'][0]['account']
         account = Account(**account_data)
         return account
@@ -502,7 +505,7 @@ class UnbabelApi(object):
         result = self.api_call('wordcount/', {"text": text})
 
         if result.status_code == 201:
-            json_object = json.loads(result.content)
+            json_object = result.json()
             return json_object["word_count"]
         else:
             log.debug('Got a HTTP Error [{}]'.format(result.status_code))
@@ -512,7 +515,7 @@ class UnbabelApi(object):
         result = self.api_call('app/user/', internal_api_call=True)
 
         if result.status_code == 200:
-            return json.loads(result.content)
+            return result.json()
         else:
             log.debug('Got a HTTP Error [{}]'.format(result.status_code))
             raise Exception("Unknown Error: %s" % result.status_code)
