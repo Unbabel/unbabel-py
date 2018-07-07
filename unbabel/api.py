@@ -6,6 +6,8 @@ import requests
 log = logging.getLogger()
 import copy
 
+import six
+
 UNBABEL_SANDBOX_API_URL = os.environ.get(
     'UNBABEL_SANDOX_API_URL', 'https://sandbox.unbabel.com/tapi/v2/')
 UNBABEL_API_URL = os.environ.get(
@@ -241,7 +243,7 @@ class UnbabelApi(object):
     def post_translations(self, text, target_language, source_language=None, type=None, tone=None, visibility=None,
                           public_url=None, callback_url=None, topics=None, instructions=None, uid=None,
                           text_format="text", target_text=None, origin=None, client_owner_email=None, context=None):
-        data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
+        data = {k: v for k, v in six.iteritems(locals()) if v not in (self, None)}
 
         if self.is_bulk:
             self.bulk_data.append(data)
@@ -252,7 +254,7 @@ class UnbabelApi(object):
     def post_mt_translations(self, text, target_language, source_language=None, tone=None, callback_url=None,
                              topics=None, instructions=None, uid=None, text_format="text", origin=None,
                              client_owner_email=None):
-        data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
+        data = {k: v for k, v in six.iteritems(locals()) if v not in (self, None)}
 
         result = requests.post("%smt_translation/" % self.api_url,
                                headers=self.headers, data=json.dumps(data))
@@ -463,7 +465,7 @@ class UnbabelApi(object):
                          name=lang_json["lang_pair"][
                              "target_language"]["name"])
             ) for lang_json in langs_json["objects"]]
-        except Exception, e:
+        except Exception as e:
             log.exception("Error decoding get language pairs")
             raise e
         return languages
