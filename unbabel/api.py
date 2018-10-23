@@ -1,10 +1,11 @@
 import json
-import logging
 import os
+
 import requests
 
-log = logging.getLogger()
-import copy
+from unbabel.abc import *
+from unbabel.exceptions import UnauthorizedException, BadRequestException
+from unbabel.translations import Translation, MTTranslation
 
 UNBABEL_SANDBOX_API_URL = os.environ.get(
     'UNBABEL_SANDOX_API_URL', 'https://sandbox.unbabel.com/tapi/v2/')
@@ -12,236 +13,54 @@ UNBABEL_API_URL = os.environ.get(
     'UNBABEL_API_URL', 'https://unbabel.com/tapi/v2/')
 
 
-class UnauthorizedException(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
-class BadRequestException(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
-class Language(object):
-    def __init__(self, shortname, name):
-        self.shortname = shortname
-        self.name = name
-
-    def __repr__(self):
-        return self.name
-
-    def __str__(self):
-        return self.name
-
-
-class Tone(object):
-    def __init__(self, description, name):
-        self.description = description
-        self.name = name
-
-    def __repr__(self):
-        return self.name
-
-    def __str__(self):
-        return self.name
-
-
-class Topic(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __repr__(self):
-        return self.name
-
-    def __str__(self):
-        return self.name
-
-
-class LangPair(object):
-    def __init__(self, source_language, target_language):
-        self.source_language = source_language
-        self.target_language = target_language
-
-    def __repr__(self):
-        return "%s_%s" % (
-            self.source_language.shortname, self.target_language.shortname)
-
-    def __str__(self):
-        return "%s_%s" % (
-            self.source_language.shortname, self.target_language.shortname)
-
-
-class Translator(object):
-    def __init__(self, first_name="", last_name="", picture_url="",
-                 profile_url=""):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.picture_url = picture_url
-        self.profile_url = profile_url
-
-    @classmethod
-    def from_json(cls, json):
-        t = Translator(json["first_name"], json["last_name"],
-                       json["picture_url"], json["profile_url"])
-        return t
-
-
-class Translation(object):
-    def __init__(
-            self,
-            uid=-1,
-            text="",
-            translatedText=None,
-            target_language="",
-            source_language=None,
-            status=None,
-            translators=[],
-            topics=None,
-            price=None,
-            text_format='text',
-            origin=None,
-            price_plan=None,
-            balance=None,
-            client=None,
-            order_number=None):
-        self.uid = uid
-        self.text = text
-        self.translation = translatedText
-        self.source_language = source_language
-        self.target_language = target_language
-        self.status = status
-        self.translators = translators
-        self.topics = topics
-        self.price = price
-        self.text_format = text_format
-        self.origin = origin
-        self.price_plan = price_plan
-        self.client = client
-        self.balance = balance
-        self.order_number = order_number
-
-    def __repr__(self):
-        return "%s %s %s_%s" % (
-            self.uid, self.status, self.source_language, self.target_language)
-
-    def __str__(self):
-        return "%s %s %s_%s" % (
-            self.uid, self.status, self.source_language, self.target_language)
-
-
-class MTTranslation(object):
-    def __init__(
-            self,
-            uid=-1,
-            text="",
-            translatedText=None,
-            target_language="",
-            source_language=None,
-            status=None,
-            topics=None,
-            text_format='text',
-            origin=None,
-            client=None):
-        self.uid = uid
-        self.text = text
-        self.translation = translatedText
-        self.source_language = source_language
-        self.target_language = target_language
-        self.status = status
-        self.topics = topics
-        self.text_format = text_format
-        self.origin = origin
-        self.client = client
-
-    def __repr__(self):
-        return "%s %s %s_%s" % (
-            self.uid, self.status, self.source_language, self.target_language)
-
-    def __str__(self):
-        return "%s %s %s_%s" % (
-            self.uid, self.status, self.source_language, self.target_language)
-
-
-class Account(object):
-    def __init__(self, username, email, balance):
-        self.username = username
-        self.email = email
-        self.balance = balance
-
-    def __unicode__(self):
-        return u'email: {email}, balance: {balance}'.format(
-            email=self.email, balance=self.balance,
-        )
-
-
-class Job(object):
-    def __init__(self, id, uid, order_id, status, source_language,
-                 target_language,
-                 text, price, tone, text_format):
-        self.id = id
-        self.uid = uid
-        self.order_id = order_id
-        self.status = status
-        self.text = text
-        self.price = price
-        self.source_language = source_language
-        self.target_language = target_language
-        self.tone = tone
-        self.text_format = text_format
-
-    def __unicode__(self):
-        return u'order_id: {}, id: {}, status: {}'.format(
-            self.order_id, self.id, self.status)
-
-
-class Order(object):
-    def __init__(self, id, status, price):
-        self.id = id
-        self.status = status
-        self.price = price
-
-    def __unicode__(self):
-        return u'{id} - {status} - {price}'.format(
-            id=self.id,
-            status=self.status,
-            price=self.price,
-        )
-
-
 class UnbabelApi(object):
     def __init__(self, username, api_key, sandbox=False):
-        if sandbox:
-            api_url = UNBABEL_SANDBOX_API_URL
-        else:
-            api_url = UNBABEL_API_URL
+        '''
+        The Unbabel Client object.
+
+        :param username: Customer's username.
+        :type username: str
+        :param api_key: Customer's API key.
+        :type api_key: str
+        :param sandbox: Whether to use the sandbox API.
+        :type sandbox: bool
+        '''
+        api_url = UNBABEL_SANDBOX_API_URL if sandbox else UNBABEL_API_URL
+
         self.username = username
         self.api_key = api_key
         self.api_url = api_url
         self.is_bulk = False
         self.headers = {
-            'Authorization': 'ApiKey {}:{}'.format(self.username,
-                                                   self.api_key),
+            'Authorization': 'ApiKey {}:{}'.format(self.username, self.api_key),
             'content-type': 'application/json'}
 
     def api_call(self, uri, data=None, internal_api_call=False):
+        '''
+        Wrapper function to fire GET/POST requests.
+
+        :param uri: The request endpoint.
+        :type uri: str
+        :param data: The payload.
+        :param internal_api_call: Whether to re-route the endpoint to internal.
+        :type internal_api_call: bool
+
+        '''
+        # Routes the URL appropriately.
         api_url = self.api_url
         if internal_api_call:
             api_url = api_url.replace('/tapi/v2/', '/api/v1/')
         url = "{}{}".format(api_url, uri)
-        if data is None:
+        # Actual request firing.
+        if data is None: # GET requests.
             return requests.get(url, headers=self.headers)
+        # POST requests.
         return requests.post(url, headers=self.headers, data=json.dumps(data))
 
     def post_translations(self, text, target_language, source_language=None, type=None, tone=None, visibility=None,
                           public_url=None, callback_url=None, topics=None, instructions=None, uid=None,
                           text_format="text", target_text=None, origin=None, client_owner_email=None, context=None):
-        data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
+        data = {k: v for k, v in locals().items() if not v in (self, None)}
 
         if self.is_bulk:
             self.bulk_data.append(data)
@@ -253,9 +72,9 @@ class UnbabelApi(object):
                              topics=None, instructions=None, uid=None, text_format="text", origin=None,
                              client_owner_email=None):
         data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
+        endpoint = "{}/mt_translation/".format(self.api_url)
+        result = requests.post(endpoint, headers=self.headers, data=json.dumps(data))
 
-        result = requests.post("%smt_translation/" % self.api_url,
-                               headers=self.headers, data=json.dumps(data))
         if result.status_code in (201, 202):
             json_object = json.loads(result.content)
             toret = self._build_mt_translation_object(json_object)
@@ -321,6 +140,7 @@ class UnbabelApi(object):
             f = requests.patch
         else:
             f = requests.post
+        print(self.headers)
         result = f("%stranslation/" % self.api_url, headers=self.headers,
                    data=json.dumps(data))
         if result.status_code in (201, 202):
@@ -463,7 +283,7 @@ class UnbabelApi(object):
                          name=lang_json["lang_pair"][
                              "target_language"]["name"])
             ) for lang_json in langs_json["objects"]]
-        except Exception, e:
+        except Exception as e:
             log.exception("Error decoding get language pairs")
             raise e
         return languages
