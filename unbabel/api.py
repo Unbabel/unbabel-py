@@ -1,11 +1,15 @@
 import json
 import os
+import copy
+import logging
 
 import requests
 
 from unbabel.abc import *
 from unbabel.exceptions import UnauthorizedException, BadRequestException
 from unbabel.translations import Translation, MTTranslation
+
+log = logging.getLogger()
 
 UNBABEL_SANDBOX_API_URL = os.environ.get(
     'UNBABEL_SANDOX_API_URL', 'https://sandbox.unbabel.com/tapi/v2/')
