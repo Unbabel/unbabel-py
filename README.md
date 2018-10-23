@@ -25,7 +25,7 @@ Getting started:
 
 ```
 api.post_translations(text="This is a test translation",target_language="pt",
-                       source_language="en", 
+                       source_language="en",
                        callback_url="http://my-awesome-service.com/unbabel_endpoint")
 ```
 
@@ -35,7 +35,7 @@ Check out the [API documentation](https://github.com/Unbabel/unbabel_api#transla
 
 Returns a translation by its uid.
 
-`t = api.get_translation(uid)` 
+`t = api.get_translation(uid)`
 
 
 
@@ -47,18 +47,18 @@ Returns all the translations for a given user.
 
 
 
-## Getting Available Language Pairs 
+## Getting Available Language Pairs
 
 `api.get_language_pairs()`
 
 > [pt_en,
   pt_fr,
-  ... 
+  ...
   it_en,
   it_fr,
   it_es]
-  
-  Each element of the list is a **LanguagePair** object that contains a source language and a target language. Each language is an instance of the **Language** class that contains a shortname ( iso639-1 language code ) and a name. 
+
+  Each element of the list is a **LanguagePair** object that contains a source language and a target language. Each language is an instance of the **Language** class that contains a shortname ( iso639-1 language code ) and a name.
 
 ## Getting Available Tones
 
