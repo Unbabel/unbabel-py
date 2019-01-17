@@ -109,7 +109,8 @@ class Translation(object):
             price_plan=None,
             balance=None,
             client=None,
-            order_number=None):
+            order_number=None,
+            brand=None):
         self.uid = uid
         self.text = text
         self.translation = translatedText
@@ -125,6 +126,7 @@ class Translation(object):
         self.client = client
         self.balance = balance
         self.order_number = order_number
+        self.brand = brand
 
     def __repr__(self):
         return "%s %s %s_%s" % (
@@ -147,7 +149,8 @@ class MTTranslation(object):
             topics=None,
             text_format='text',
             origin=None,
-            client=None):
+            client=None,
+            brand=None):
         self.uid = uid
         self.text = text
         self.translation = translatedText
@@ -158,6 +161,7 @@ class MTTranslation(object):
         self.text_format = text_format
         self.origin = origin
         self.client = client
+        self.brand = brand
 
     def __repr__(self):
         return "%s %s %s_%s" % (
@@ -292,6 +296,7 @@ class UnbabelApi(object):
             origin=json_object.get('origin', None),
             price_plan=json_object.get('price_plan', None),
             client=json_object.get('client', None),
+            brand=json_object.get('brand', None)
         )
         return translation
 
@@ -311,6 +316,7 @@ class UnbabelApi(object):
             text_format=json_object.get('text_format', "text"),
             origin=json_object.get('origin', None),
             client=json_object.get('client', None),
+            brand=json_object.get('brand', None)
         )
         return translation
 
