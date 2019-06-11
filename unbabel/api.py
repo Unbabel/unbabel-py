@@ -470,7 +470,7 @@ class UnbabelApi(object):
                          name=lang_json["lang_pair"][
                              "target_language"]["name"])
             ) for lang_json in langs_json["objects"]]
-        except Exception, e:
+        except Exception as e:
             log.exception("Error decoding get language pairs")
             raise e
         return languages
