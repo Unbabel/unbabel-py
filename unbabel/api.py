@@ -246,7 +246,7 @@ class UnbabelApi(object):
                           public_url=None, callback_url=None, topics=None, instructions=None, uid=None,
                           text_format="text", target_text=None, origin=None, client_owner_email=None, context=None,
                           brand=None):
-        data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
+        data = {k: v for k, v in locals().items() if not v in (self, None)}
 
         if self.is_bulk:
             self.bulk_data.append(data)
@@ -257,7 +257,7 @@ class UnbabelApi(object):
     def post_mt_translations(self, text, target_language, source_language=None, tone=None, callback_url=None,
                              topics=None, instructions=None, uid=None, text_format="text", origin=None,
                              client_owner_email=None, brand=None):
-        data = {k: v for k, v in locals().iteritems() if not v in (self, None)}
+        data = {k: v for k, v in locals().items() if not v in (self, None)}
 
         result = requests.post("%smt_translation/" % self.api_url,
                                headers=self.headers, data=json.dumps(data))
