@@ -111,7 +111,9 @@ class Translation(object):
             price_plan=None,
             balance=None,
             client=None,
-            order_number=None):
+            order_number=None,
+            brand=None):
+
         if translators is None:
             translators = []
 
@@ -130,6 +132,7 @@ class Translation(object):
         self.client = client
         self.balance = balance
         self.order_number = order_number
+        self.brand = brand
 
     def __repr__(self):
         return "%s %s %s_%s" % (
@@ -152,7 +155,8 @@ class MTTranslation(object):
             topics=None,
             text_format='text',
             origin=None,
-            client=None):
+            client=None,
+            brand=None):
         self.uid = uid
         self.text = text
         self.translation = translatedText
@@ -163,6 +167,7 @@ class MTTranslation(object):
         self.text_format = text_format
         self.origin = origin
         self.client = client
+        self.brand = brand
 
     def __repr__(self):
         return "%s %s %s_%s" % (
@@ -245,7 +250,8 @@ class UnbabelApi(object):
 
     def post_translations(self, text, target_language, source_language=None, type=None, tone=None, visibility=None,
                           public_url=None, callback_url=None, topics=None, instructions=None, uid=None,
-                          text_format="text", target_text=None, origin=None, client_owner_email=None, context=None):
+                          text_format="text", target_text=None, origin=None, client_owner_email=None, context=None,
+                          brand=None):
         data = {k: v for k, v in six.iteritems(locals()) if v not in (self, None)}
 
         if self.is_bulk:
@@ -256,7 +262,7 @@ class UnbabelApi(object):
 
     def post_mt_translations(self, text, target_language, source_language=None, tone=None, callback_url=None,
                              topics=None, instructions=None, uid=None, text_format="text", origin=None,
-                             client_owner_email=None):
+                             client_owner_email=None, brand=None):
         data = {k: v for k, v in six.iteritems(locals()) if v not in (self, None)}
 
         result = requests.post("%smt_translation/" % self.api_url,
@@ -296,6 +302,7 @@ class UnbabelApi(object):
             origin=json_object.get('origin', None),
             price_plan=json_object.get('price_plan', None),
             client=json_object.get('client', None),
+            brand=json_object.get('brand', None)
         )
         return translation
 
@@ -315,6 +322,7 @@ class UnbabelApi(object):
             text_format=json_object.get('text_format', "text"),
             origin=json_object.get('origin', None),
             client=json_object.get('client', None),
+            brand=json_object.get('brand', None)
         )
         return translation
 
