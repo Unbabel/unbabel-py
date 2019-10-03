@@ -276,10 +276,6 @@ class UnbabelApi(object):
                             result.status_code, result.content[0:100])
 
     def _build_translation_object(self, json_object):
-        source_lang = json_object.get("source_language", None)
-        translation = json_object.get("translation", None)
-        status = json_object.get("status", None)
-
         translators = [Translator.from_json(t) for t in
                        json_object.get("translators", [])]
 
@@ -303,10 +299,6 @@ class UnbabelApi(object):
         return translation
 
     def _build_mt_translation_object(self, json_object):
-        source_lang = json_object.get("source_language", None)
-        translation = json_object.get("translation", None)
-        status = json_object.get("status", None)
-
         translation = MTTranslation(
             uid=json_object["uid"],
             text=json_object["text"],
@@ -382,8 +374,7 @@ class UnbabelApi(object):
             translations = [Translation(**tj) for tj in translations_json]
         else:
             log.critical(
-                'Error status when fetching translation from server: {'
-                '}!'.format(
+                'Error status when fetching translation from server: {}!'.format(
                     result.status_code))
             translations = []
         return translations
@@ -397,8 +388,7 @@ class UnbabelApi(object):
             translation = Translation(**result.json())
         else:
             log.critical(
-                'Error status when fetching translation from server: {'
-                '}!'.format(
+                'Error status when fetching translation from server: {}!'.format(
                     result.status_code))
             raise ValueError(result.content)
         return translation
