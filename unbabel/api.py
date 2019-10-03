@@ -1,12 +1,12 @@
 import json
 import logging
 import os
-import requests
-
-log = logging.getLogger()
 import copy
 
+import requests
 import six
+
+log = logging.getLogger()
 
 UNBABEL_SANDBOX_API_URL = os.environ.get(
     'UNBABEL_SANDOX_API_URL', 'https://sandbox.unbabel.com/tapi/v2/')
@@ -113,17 +113,13 @@ class Translation(object):
             client=None,
             order_number=None,
             brand=None):
-
-        if translators is None:
-            translators = []
-
         self.uid = uid
         self.text = text
         self.translation = translatedText
         self.source_language = source_language
         self.target_language = target_language
         self.status = status
-        self.translators = translators
+        self.translators = translators or []
         self.topics = topics
         self.price = price
         self.text_format = text_format
