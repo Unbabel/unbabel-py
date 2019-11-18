@@ -1,6 +1,8 @@
 __author__ = 'joaograca'
 
 from bs4 import BeautifulSoup
+import six
+
 
 def generate_xliff(entry_dict):
     """
@@ -28,10 +30,11 @@ def generate_xliff(entry_dict):
 
     """
     entries = ""
-    for key,value in entry_dict.iteritems():
-        entries+=create_trans_unit(key,value).strip()+"\n"
-    xliff_str = get_head_xliff().strip()+"\n"+entries+get_tail_xliff().strip()
+    for key, value in six.iteritems(entry_dict):
+        entries += create_trans_unit(key, value).strip() + "\n"
+    xliff_str = get_head_xliff().strip() + "\n" + entries + get_tail_xliff().strip()
     return xliff_str
+
 
 def get_head_xliff():
     return '''
@@ -40,12 +43,15 @@ def get_head_xliff():
 <head> </head>
 <body>
     '''
+
+
 def get_tail_xliff():
     return '''
 </body>
 </file>
 </xliff>
     '''
+
 
 def create_trans_unit(key, value):
     return '''
@@ -54,9 +60,10 @@ def create_trans_unit(key, value):
         %s
     </source>
 </trans-unit>
-           '''%(key,value)
+           ''' % (key, value)
 
-def get_dictionary_from_xliff(xliff_text,side="target"):
+
+def get_dictionary_from_xliff(xliff_text, side="target"):
     soup = BeautifulSoup(xliff_text, "html.parser")
     trans_units = soup.find_all("trans-unit")
     result_dic = {}

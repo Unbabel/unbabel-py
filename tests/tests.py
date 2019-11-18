@@ -7,6 +7,8 @@ Created on Jan 3, 2014
 
 import os
 import unittest
+
+import six
 import requests_mock
 
 from unbabel.api import (UnbabelApi, LangPair, Tone, Topic,
@@ -42,10 +44,7 @@ class TestUnbabelAPI(unittest.TestCase):
 
         self.assertIsInstance(pairs, list, 'Got something that is not a list')
         self.assertGreater(len(pairs), 0, 'Got 0 pairs')
-        self.assertTrue(
-            reduce(lambda x, y: x and y,
-                   [isinstance(p, LangPair) for p in pairs]),
-            'The pairs are not all instance of LangPair')
+        self.assertTrue(all(isinstance(p, LangPair) for p in pairs), 'The pairs are not all instance of LangPair')
 
     @requests_mock.Mocker()
     def test_api_get_available_tones(self, m):
@@ -69,10 +68,7 @@ class TestUnbabelAPI(unittest.TestCase):
 
         self.assertIsInstance(tones, list, 'Got something that is not a list')
         self.assertGreater(len(tones), 0, 'Got 0 tones')
-        self.assertTrue(
-            reduce(lambda x, y: x and y,
-                   [isinstance(t, Tone) for t in tones]),
-            'The tones are not all instance of Tone')
+        self.assertTrue(all(isinstance(t, Tone) for t in tones), 'The tones are not all instance of Tone')
 
     @requests_mock.Mocker()
     def test_api_get_topics(self, m):
@@ -88,10 +84,7 @@ class TestUnbabelAPI(unittest.TestCase):
 
         self.assertIsInstance(topics, list, 'Got something that is not a list')
         self.assertGreater(len(topics), 0, 'Got 0 topics')
-        self.assertTrue(
-            reduce(lambda x, y: x and y,
-                   [isinstance(t, Topic) for t in topics]),
-            'The topics are not all instance of Topic')
+        self.assertTrue(all(isinstance(t, Topic) for t in topics), 'The topics are not all instance of Topic')
 
     @requests_mock.Mocker()
     def test_api_post_translation(self, m):
@@ -183,11 +176,11 @@ class TestUnbabelAPI(unittest.TestCase):
         account = self.api.get_account()
         self.assertIsInstance(account, Account,
                               'Should be an Account instance')
-        self.assertIsInstance(account.username, unicode,
+        self.assertIsInstance(account.username, six.text_type,
                               'Username is not unicode')
         self.assertEqual(account.username, "username", 'Wrong username')
         self.assertIsInstance(account.balance, float, 'Balance is not float')
-        self.assertIsInstance(account.email, unicode, 'Email is not unicode')
+        self.assertIsInstance(account.email, six.text_type, 'Email is not unicode')
 
     @requests_mock.Mocker()
     def test_api_get_translations(self, m):
