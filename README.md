@@ -1,21 +1,22 @@
-Python SDK for the Unbabel REST API
+# Python SDK for the Unbabel REST API
+
+[![Project Status: Abandoned – Initial development has started, but there has not yet been a stable, usable release; the project has been abandoned and the author(s) do not intend on continuing development.](https://www.repostatus.org/badges/latest/abandoned.svg)](https://www.repostatus.org/#abandoned)
 
 
-Documentation:
-=============
+
+
+## Documentation:
 
 Please visit our documentation page at https://github.com/Unbabel/unbabel_api
 
 
 
-Installation
-============
+## Installation
 
 `pip install unbabel-py`
 
 
-Getting started:
-================
+## Getting started:
 
 `from unbabel.api import UnbabelApi`
 
